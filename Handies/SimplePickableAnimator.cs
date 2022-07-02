@@ -1,4 +1,3 @@
-using Game;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,12 +5,6 @@ using UnityEngine;
 
 public class SimplePickableAnimator : MonoBehaviour
 {
-    #region Dependencies
-
-    private static TimeController TimeController => TimeController.Instance;
-
-    #endregion
-
     [SerializeField] Transform visualsPivot;
 
     [FoldoutGroup("Float Animation"), LabelText("Enabled")]
@@ -41,7 +34,7 @@ public class SimplePickableAnimator : MonoBehaviour
 
     void Update()
     {
-        var deltaTime = Time.deltaTime * TimeController.TimeScale;
+        var deltaTime = Time.deltaTime;
 
         if (animateRotation)
         {

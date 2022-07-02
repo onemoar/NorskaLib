@@ -10,18 +10,13 @@ namespace NorskaLib.UI
 {
     public class ScreenManager : MonoBehaviour
     {
-        private static AssetsContainer AssetsContainer => AssetsContainer.Instance;
-
         public static ScreenManager Instance { get; private set; }
-
-        // Дефолтная реализация
-        private static Camera MainCamera => Camera.main;
 
         [SerializeField] bool singleInstance;
 
         [SerializeField] Canvas canvas;
 
-        #region Свойства масштабирования 
+        #region Scale properties
 
         [SerializeField] CanvasScaler canvasScaler;
 
@@ -48,7 +43,7 @@ namespace NorskaLib.UI
 
         #endregion
 
-        #region Свойства масок
+        #region Masks properties
 
         // Масками называются изображения (Image) на полотне интерфейса (Canvas)
         // которые полностью заполняют экран, закрывая только пространство сцены
@@ -65,7 +60,7 @@ namespace NorskaLib.UI
 
         #endregion
 
-        #region Свойства экранов
+        #region Screens properties
 
         private RectTransform screensContainer;
 
@@ -95,7 +90,7 @@ namespace NorskaLib.UI
 
         void Awake()
         {
-            #region Инициализация синглтона
+            #region Singleton initialization
 
             if (singleInstance)
             {
@@ -111,7 +106,7 @@ namespace NorskaLib.UI
 
             #endregion
 
-            #region Общая инициализация
+            #region Common initialization
 
             var children = new Dictionary<string, RectTransform>()
             {
@@ -142,7 +137,7 @@ namespace NorskaLib.UI
 
             #endregion
 
-            #region Инициализация масок
+            #region Masks initialization
 
             maskImages = new Dictionary<MaskType, Image>()
             {
@@ -157,13 +152,13 @@ namespace NorskaLib.UI
             foreach (var pair in maskImages)
             {
                 SetMaskAlpha(pair.Key, 0);
-                SetMaskSprite(pair.Key, AssetsContainer.DefaltEmptySprite);
+                SetMaskSprite(pair.Key, null);
                 pair.Value.raycastTarget = false;
             }
 
             #endregion
 
-            #region Инициализация экранов
+            #region Screens initialization
 
             screensContainer = children["Screens"];
             screensCached = new Dictionary<System.Type, Screen>();
@@ -178,7 +173,7 @@ namespace NorskaLib.UI
 
         void OnDestroy()
         {
-            // Деинциализация масок
+            // Masks uninitialization
             if (maskHandlers != null)
                 foreach (var h in maskHandlers)
                     h.Value?.Stop();
@@ -189,7 +184,7 @@ namespace NorskaLib.UI
 
         }
 
-        #region Методы для работы с экранами
+        #region Screens 
 
         public T GetScreen<T>() where T : Screen
         {
@@ -315,7 +310,7 @@ namespace NorskaLib.UI
 
         #endregion
 
-        #region Методы для работы с масками
+        #region Masks
 
         public void SetMaskSprite(MaskType maskType, Sprite sprite)
         {
