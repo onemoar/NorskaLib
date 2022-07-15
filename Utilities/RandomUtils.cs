@@ -56,6 +56,12 @@ namespace NorskaLib.Utilities
             return new Vector3(x, y, z);
         }
 
+        public static T Value<T>(IList<Meta<T>> metas)
+        {
+            var weights = metas.Select(m => m.weight).ToArray();
+            var index = Index(weights);
+            return metas[index].value;
+        }
         public static T Value<T>(Meta<T>[] metas)
         {
             var weights = metas.Select(m => m.weight).ToArray();

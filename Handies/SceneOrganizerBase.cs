@@ -45,16 +45,16 @@ public abstract class SceneOrganizerBase : MonoBehaviour
 		return container;
 	}
 
-	public void Store(Component @object)
+	public void Store(Component component)
     {
-		var type = @object.GetType();
+		var type = component.GetType();
 
 		foreach (var pair in containers)
 			if (pair.Key == type || type.IsSubclassOf(pair.Key))
-				@object.transform.SetParent(pair.Value);
-			//else
-			//	Debug.Log($"Could not identify container for {@object.name} ({type.Name})");
-	}
+				component.transform.SetParent(pair.Value);
+            else
+                Debug.Log($"Could not identify container for {component.name} ({type.Name})");
+    }
 
 	[System.Serializable]
 	public struct ContainerData
