@@ -11,6 +11,11 @@ public class GizmosDrawer : MonoBehaviour
 
 
     [SerializeField] Shapes shape;
+    [ShowIf("@shape == Shapes.Sphere"), LabelText("Radius")]
+    [SerializeField] float sphereRadius = 1;
+    [ShowIf("@shape == Shapes.Cube"), LabelText("Size")]
+    [SerializeField] Vector3 cubeSize = Vector3.one;
+
     [ShowIf("@shape == Shapes.Custom")]
     [SerializeField] Mesh[] meshes;
 
@@ -55,10 +60,10 @@ public class GizmosDrawer : MonoBehaviour
                 {
                     default:
                     case Styles.Solid:
-                        Gizmos.DrawCube(position, transform.localScale);
+                        Gizmos.DrawCube(position, cubeSize);
                         break;
                     case Styles.Wired:
-                        Gizmos.DrawWireCube(position, transform.localScale);
+                        Gizmos.DrawWireCube(position, cubeSize);
                         break;
                 }
                 break;
@@ -67,10 +72,10 @@ public class GizmosDrawer : MonoBehaviour
                 {
                     default:
                     case Styles.Solid:
-                        Gizmos.DrawSphere(position, transform.localScale.x);
+                        Gizmos.DrawSphere(position, sphereRadius);
                         break;
                     case Styles.Wired:
-                        Gizmos.DrawWireSphere(position, transform.localScale.x);
+                        Gizmos.DrawWireSphere(position, sphereRadius);
                         break;
                 }
                 break;
