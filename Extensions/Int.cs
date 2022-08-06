@@ -14,5 +14,11 @@ namespace NorskaLib.Extensions
         {
             return value * value * value;
         }
+
+        public static bool IsBetween(this int value, int min, int max, bool exclusiveMin = false, bool exclusiveMax = false)
+        {
+            return exclusiveMin ? value > min : value >= min
+                && exclusiveMax ? value < max : value <= max;
+        }
     }
 }
