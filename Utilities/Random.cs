@@ -9,7 +9,7 @@ namespace NorskaLib.Utilities
     {
         public static bool Bool(float chance, out float dice)
         {
-            dice = UnityEngine.Random.Range(0, 0.99f);
+            dice = Random.Range(0, 0.99f);
             return dice < Mathf.Clamp01(chance);
         }
         public static bool Bool(float chance)
@@ -17,7 +17,7 @@ namespace NorskaLib.Utilities
             return Bool(chance, out var dice);
         }
 
-        public static int Int(int min, int max, int[] exeptions)
+        public static int Range(int min, int max, int[] exeptions)
         {
             var pool = new List<int>();
             for (int i = min; i < max; i++)
@@ -38,7 +38,7 @@ namespace NorskaLib.Utilities
 
             return pool[index];
         }
-        public static int IntInclusive(int min, int max)
+        public static int RangeInclusive(int min, int max)
         {
             return UnityEngine.Random.Range(min, max + 1);
         }
