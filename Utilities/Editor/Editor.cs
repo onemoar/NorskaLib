@@ -105,6 +105,24 @@ public struct EditorUtils
         }
     }
 
+    [MenuItem("Tools/Clear Player Preferences")]
+    public static void ClearPlayerPrefs()
+    {
+        if (Application.isPlaying)
+        {
+            Debug.LogError("Unavailable in play mode!");
+            return;
+        }
+
+        PlayerPrefs.DeleteAll();
+    }
+
+    [MenuItem("Tools/Open Pesistent Data location")]
+    public static void OpenPersistentDataFolder()
+    {
+        System.Diagnostics.Process.Start(Application.persistentDataPath);
+    }
+
     public static void DrawObject(string Name, object obj, bool disabled, Dictionary<string, bool> foldouts, string path = "", bool zeroIndent = false)
     {
         if (obj == null)

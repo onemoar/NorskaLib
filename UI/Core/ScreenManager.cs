@@ -66,22 +66,6 @@ namespace NorskaLib.UI
 
         public Screen ActiveScreen { get; private set; }
 
-        public enum ScreenModes
-        {
-            /// <summary>
-            /// При открытии экрана в этом режиме все остальные экраны будут скрыты.
-            /// </summary>
-            Single,
-            /// <summary>
-            /// При открытии экрана в этом режиме прочие экраны не будут затронуты.
-            /// </summary>
-            Additive,
-            /// <summary>
-            /// При открытии экрана в этом режиме экраны с таким же
-            /// порядковым номером (GUIScreen.Order) будут скрыты
-            /// </summary>
-            SoloInLayer
-        }
         public const string screensLoadpath = "Screens";
 
         private Dictionary<System.Type, Screen> screensCached;
@@ -166,22 +150,12 @@ namespace NorskaLib.UI
             #endregion
         }
 
-        void Start()
-        {
-
-        }
-
         void OnDestroy()
         {
             // Masks uninitialization
             if (maskHandlers != null)
                 foreach (var h in maskHandlers)
                     h.Value?.Stop();
-        }
-
-        void FixedUpdate()
-        {
-
         }
 
         #region Screens 
@@ -194,23 +168,27 @@ namespace NorskaLib.UI
                 return null;
         }
 
-        public T ShowScreen<T>(ScreenModes mode = ScreenModes.Additive, int order = 0, bool animated = false, string prefabName = null) where T : Screen
+        public T ShowScreen<T>(ShowScreenMode mode = ShowScreenMode.Additive, int order = 0, bool animated = false, string prefabName = null) where T : Screen
         {
             T screen;
+            var type = typeof(T);
 
-            if (screensCached.ContainsKey(typeof(T)))
+            if (screensCached.ContainsKey(type))
             {
-                screen = (T)screensCached[typeof(T)];
+                screen = (T)screensCached[type];
             }
             else
             {
                 var filename = !string.IsNullOrEmpty(prefabName)
                     ? prefabName
-                    : typeof(T).Name;
-
-                //Debug.Log($"Loading screen by path: Assets/Resources/{loadpath}/{filename}");
+                    : type.Name;
 
                 var screenPref = Resources.Load<T>($"{screensLoadpath}/{filename}");
+                if (screenPref == null)
+                {
+                    Debug.LogError($"Prefab for screen type '{type.Name}' named '{filename}' not found.");
+                    return null;
+                }
                 screen = Instantiate(screenPref, screensContainer);
 
                 screensCached.Add(typeof(T), screen);
@@ -219,14 +197,14 @@ namespace NorskaLib.UI
             switch (mode)
             {
                 default:
-                case ScreenModes.Additive:
+                case ShowScreenMode.Additive:
                     break;
-                case ScreenModes.Single:
+                case ShowScreenMode.Single:
                     foreach (var s in screensCached)
                         if (s.Value != screen)
                             HideScreen(s.Value);
                     break;
-                case ScreenModes.SoloInLayer:
+                case ShowScreenMode.SoloInLayer:
                     foreach (var s in screensCached)
                         if (s.Value != screen && s.Value.Order == order)
                             HideScreen(s.Value);
@@ -241,7 +219,6 @@ namespace NorskaLib.UI
 
             return screen;
         }
-
         public void ShowScreen(Screen screen, bool animated = false)
         {
             screen.Show(animated);
@@ -251,13 +228,11 @@ namespace NorskaLib.UI
         {
             T screen;
 
-            if (screensCached.ContainsKey(typeof(T)))
-            {
-                screen = (T)screensCached[typeof(T)];
-                HideScreen(screen, animated);
-            }
-            else
+            if (!screensCached.ContainsKey(typeof(T)))
                 return;
+
+            screen = (T)screensCached[typeof(T)];
+            HideScreen(screen, animated);
         }
         public void HideScreen(Screen screen, bool animated = false)
         {
@@ -273,16 +248,14 @@ namespace NorskaLib.UI
         {
             T screen;
 
-            if (screensCached.ContainsKey(typeof(T)))
-            {
-                screen = (T)screensCached[typeof(T)];
-                screensCached.Remove(typeof(T));
-
-                if (screen != null)
-                    Destroy(screen.gameObject);
-            }
-            else
+            if (!screensCached.ContainsKey(typeof(T)))
                 return;
+
+            screen = screensCached[typeof(T)] as T;
+            screensCached.Remove(typeof(T));
+
+            if (screen != null)
+                Destroy(screen.gameObject);
         }
         public void DestroyScreen(Screen screen)
         {

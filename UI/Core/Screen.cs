@@ -8,7 +8,7 @@ namespace NorskaLib.UI
     [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
     public abstract class Screen : MonoBehaviour
     {
-        protected static ScreenManager GUIManager => ScreenManager.Instance;
+        protected static ScreenManager ScreenManager => ScreenManager.Instance;
 
         public RectTransform Rect
         { get; private set; }
@@ -25,7 +25,7 @@ namespace NorskaLib.UI
             {
                 name = $"{this.GetType().Name} (Layer: {value})";
                 order = value;
-                GUIManager.UpdateScreensOrder();
+                ScreenManager.UpdateScreensOrder();
             }
         }
 
