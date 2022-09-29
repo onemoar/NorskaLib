@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace NorskaLib.Utilities
 {
-    public static class ReflectionUtils
+    public struct ReflectionUtils
     {
         public static IEnumerable<Type> GetSubclasses<T>(bool includeAbstract) where T : class
         {
