@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,13 +9,13 @@ namespace NorskaLib.UI
     [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
     public abstract class Screen : MonoBehaviour
     {
-        protected static ScreenManager ScreenManager => ScreenManager.Instance;
+        protected ScreenManager ScreenManager;
 
         public RectTransform Rect
         { get; private set; }
         protected CanvasGroup Group
         { get; private set; }
-        protected DoTweenCanvasFader screenFader;
+        protected Tween fadeTween;
 
         protected int order;
         public int Order
@@ -23,7 +24,10 @@ namespace NorskaLib.UI
 
             set
             {
+#if UNITY_EDITOR
                 name = $"{this.GetType().Name} (Layer: {value})";
+#endif
+
                 order = value;
                 ScreenManager.UpdateScreensOrder();
             }
@@ -34,72 +38,104 @@ namespace NorskaLib.UI
             Rect = GetComponent<RectTransform>();
             Group = GetComponent<CanvasGroup>();
 
-            screenFader = new DoTweenCanvasFader(Group);
-
+#if UNITY_EDITOR
             name = $"{this.GetType().Name} (Layer: {Order})";
+#endif
         }
 
         protected virtual void OnDestroy()
         {
-            screenFader?.Stop();
+            fadeTween?.Kill(true);
             UI.Events.onScreenDestroyed.Invoke(this);
+        }
+
+        internal void Initialize(ScreenManager manager)
+        {
+            ScreenManager = manager;
         }
 
         public void SetAlpha(float alpha, float duration = 0)
         {
             if (duration > 0)
-                screenFader.Transit(alpha, duration);
+                fadeTween = Group.DOFade(alpha, duration);
             else
-                screenFader.SetAlpha(alpha);
+                Group.alpha = alpha;
         }
 
-        public void Show(bool animated = false)
+        internal void Show(bool animated)
         {
+            void Finish()
+            {
+                Group.alpha = 1;
+                UI.Events.onScreenShown.Invoke(this);
+            }
+            
             IEnumerator Routine()
             {
                 yield return StartCoroutine(ShowScenario());
-                UI.Events.onScreenShown.Invoke(this);
+                Finish();
             }
 
             gameObject.SetActive(true);
+
             if (animated)
                 StartCoroutine(Routine());
             else
-            {
-                screenFader.SetAlpha(1);
-                UI.Events.onScreenShown.Invoke(this);
-            }
+                Finish();
+
         }
 
-        public void Hide(bool animated = false)
+        internal void Hide(bool animated, bool destroy)
         {
+            void Finish()
+            {
+                if (destroy)
+                    Destroy(this.gameObject);
+                else
+                {
+                    gameObject.SetActive(false);
+                    Group.alpha = 0;
+                }
+
+                UI.Events.onScreenHidden.Invoke(this);
+            }
+
             IEnumerator Routine()
             {
                 yield return StartCoroutine(HideScenario());
-                gameObject.SetActive(false);
-                UI.Events.onScreenHidden.Invoke(this);
+                Finish();
+            }
+
+            if (destroy && !gameObject.activeSelf)
+            {
+                Destroy(this.gameObject);
+                return;
             }
 
             if (animated)
                 StartCoroutine(Routine());
             else
-            {
-                gameObject.SetActive(false);
-                screenFader.SetAlpha(0);
-                UI.Events.onScreenHidden.Invoke(this);
-            }
+                Finish();
         }
 
         protected virtual IEnumerator ShowScenario()
         {
-            screenFader.Transit(0, 1, 0.2f);
-            yield return new WaitForSeconds(0.2f);
+            var duration = 0.2f;
+
+            Group.alpha = 0;
+            fadeTween = Group.DOFade(1, duration);
+
+            yield return new WaitForSeconds(duration);
         }
 
         protected virtual IEnumerator HideScenario()
         {
-            screenFader.Transit(1, 0, 0.2f);
-            yield return new WaitForSeconds(0.2f);
+            var duration = 0.2f;
+
+            Group.alpha = 1;
+            fadeTween = Group.DOFade(0, duration);
+
+            yield return new WaitForSeconds(duration);
         }
     }
 }

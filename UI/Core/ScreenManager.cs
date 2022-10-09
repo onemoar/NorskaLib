@@ -10,10 +10,6 @@ namespace NorskaLib.UI
 {
     public class ScreenManager : MonoBehaviour
     {
-        public static ScreenManager Instance { get; private set; }
-
-        [SerializeField] bool singleInstance;
-
         [SerializeField] Canvas canvas;
 
         #region Scale properties
@@ -62,42 +58,31 @@ namespace NorskaLib.UI
 
         #region Screens properties
 
+        private struct KeyWords
+        {
+            public const string Screens     = "Screens";
+
+            public const string MaskFull    = "MaskFull";
+            public const string MaskScene   = "MaskScene";
+        }
+
         private RectTransform screensContainer;
 
-        public Screen ActiveScreen { get; private set; }
-
-        public const string screensLoadpath = "Screens";
-
-        private Dictionary<System.Type, Screen> screensCached;
+        public const string ScreensFolder = "Screens";
+        private Dictionary<System.Type, Screen> screens;
+        private Dictionary<string, Screen> screensPrefabs;
 
         #endregion
 
         void Awake()
         {
-            #region Singleton initialization
-
-            if (singleInstance)
-            {
-                if (Instance != null)
-                {
-                    Destroy(this.gameObject);
-                    return;
-                }
-                DontDestroyOnLoad(this.gameObject);
-            }
-
-            Instance = this;
-
-            #endregion
-
             #region Common initialization
 
             var children = new Dictionary<string, RectTransform>()
             {
-                { "MaskScene", null },
-                { "Labels", null },
-                { "Screens", null },
-                { "MaskFull", null }
+                { KeyWords.MaskScene,   null },
+                { KeyWords.Screens,     null },
+                { KeyWords.MaskFull,    null }
             };
             for (int i = 0; i < children.Count; i++)
             {
@@ -125,8 +110,8 @@ namespace NorskaLib.UI
 
             maskImages = new Dictionary<MaskType, Image>()
             {
-                { MaskType.Full,  children["MaskFull"].gameObject.AddComponent<Image>() },
-                { MaskType.Scene,  children["MaskScene"].gameObject.AddComponent<Image>() }
+                { MaskType.Full,  children[KeyWords.MaskFull].gameObject.AddComponent<Image>() },
+                { MaskType.Scene,  children[KeyWords.MaskScene].gameObject.AddComponent<Image>() }
             };
             maskHandlers = new Dictionary<MaskType, DoTweenGraphicColorizer>()
             {
@@ -144,8 +129,9 @@ namespace NorskaLib.UI
 
             #region Screens initialization
 
-            screensContainer = children["Screens"];
-            screensCached = new Dictionary<System.Type, Screen>();
+            screensContainer    = children[KeyWords.Screens];
+            screens             = new();
+            screensPrefabs      = new();
 
             #endregion
         }
@@ -160,38 +146,52 @@ namespace NorskaLib.UI
 
         #region Screens 
 
+        public Screen GetScreenPrefab(Type type, string prefabName = null)
+        {
+            var filename = !string.IsNullOrEmpty(prefabName)
+                ? prefabName
+                : type.Name;
+
+            if (!screensPrefabs.TryGetValue(filename, out var prefab))
+            {
+                var path = $"{ScreensFolder}/{filename}";
+                prefab = Resources.Load(path, type) as Screen;
+                if (prefab != null)
+                {
+                    screensPrefabs.Add(filename, prefab);
+                    return prefab;
+                }
+                else
+                {
+                    Debug.LogError($"Prefab for screen type '{type.Name}' named '{filename}' not found.");
+                    return null;
+                }
+            }
+
+            return prefab;
+        }
+
         public T GetScreen<T>() where T : Screen
         {
-            if (screensCached.ContainsKey(typeof(T)))
-                return (T)screensCached[typeof(T)];
+            var type = typeof(T);
+
+            if (screens.ContainsKey(type))
+                return screens[type] as T;
             else
                 return null;
         }
 
         public T ShowScreen<T>(ShowScreenMode mode = ShowScreenMode.Additive, int order = 0, bool animated = false, string prefabName = null) where T : Screen
         {
-            T screen;
             var type = typeof(T);
 
-            if (screensCached.ContainsKey(type))
+            if (!screens.TryGetValue(type, out var screen) || screen == null)
             {
-                screen = (T)screensCached[type];
-            }
-            else
-            {
-                var filename = !string.IsNullOrEmpty(prefabName)
-                    ? prefabName
-                    : type.Name;
+                var prefab = GetScreenPrefab(type, prefabName);
+                screen = Instantiate(prefab, screensContainer);
+                screen.Initialize(this);
 
-                var screenPref = Resources.Load<T>($"{screensLoadpath}/{filename}");
-                if (screenPref == null)
-                {
-                    Debug.LogError($"Prefab for screen type '{type.Name}' named '{filename}' not found.");
-                    return null;
-                }
-                screen = Instantiate(screenPref, screensContainer);
-
-                screensCached.Add(typeof(T), screen);
+                screens.Add(type, screen);
             }
 
             switch (mode)
@@ -200,83 +200,59 @@ namespace NorskaLib.UI
                 case ShowScreenMode.Additive:
                     break;
                 case ShowScreenMode.Single:
-                    foreach (var s in screensCached)
+                    foreach (var s in screens)
                         if (s.Value != screen)
                             HideScreen(s.Value);
                     break;
                 case ShowScreenMode.SoloInLayer:
-                    foreach (var s in screensCached)
+                    foreach (var s in screens)
                         if (s.Value != screen && s.Value.Order == order)
                             HideScreen(s.Value);
                     break;
             }
 
-            ActiveScreen = screen;
             screen.Order = order;
             screen.Show(animated);
 
             UpdateScreensOrder();
 
-            return screen;
+            return screen as T;
         }
-        public void ShowScreen(Screen screen, bool animated = false)
+        public Screen ShowScreen(Screen screen, bool animated = false)
         {
             screen.Show(animated);
+
+            return screen;
         }
 
-        public void HideScreen<T>(bool animated = false) where T : Screen
+        public void HideScreen<T>(bool animated = false, bool destroy = false) where T : Screen
         {
-            T screen;
+            var type = typeof(T);
 
-            if (!screensCached.ContainsKey(typeof(T)))
+            if (!screens.TryGetValue(type, out var screen))
                 return;
 
-            screen = (T)screensCached[typeof(T)];
-            HideScreen(screen, animated);
+            if (destroy)
+                screens.Remove(type);
+            screen.Hide(animated, destroy);
         }
-        public void HideScreen(Screen screen, bool animated = false)
-        {
-            screen.Hide(animated);
-        }
-        public void HideAll(bool animated = false)
-        {
-            foreach (var s in screensCached)
-                HideScreen(s.Value, animated);
-        }
-
-        public void DestroyScreen<T>() where T : Screen
-        {
-            T screen;
-
-            if (!screensCached.ContainsKey(typeof(T)))
-                return;
-
-            screen = screensCached[typeof(T)] as T;
-            screensCached.Remove(typeof(T));
-
-            if (screen != null)
-                Destroy(screen.gameObject);
-        }
-        public void DestroyScreen(Screen screen)
+        public void HideScreen(Screen screen, bool animated = false, bool destroy = false)
         {
             var type = screen.GetType();
 
-            if (screensCached.ContainsKey(type))
-                screensCached.Remove(type);
-
-            Destroy(screen.gameObject);
+            if (destroy)
+                screens.Remove(type);
+            screen.Hide(animated, destroy);
         }
-        public void DestroyAll()
+        public void HideAll(bool animated = false, bool destroy = false)
         {
-            foreach (var s in screensCached)
-                Destroy(s.Value.gameObject);
-
-            screensCached.Clear();
+            foreach (var pair in screens)
+                HideScreen(pair.Value, animated, destroy);
         }
 
         public void UpdateScreensOrder()
         {
-            var screensSorted = screensCached.Values.OrderBy(s => s.Order).ToArray();
+            var screensSorted = screens.Values.OrderBy(s => s.Order).ToArray();
             for (int i = 0; i < screensSorted.Length; i++)
                 screensSorted[i].Rect.SetSiblingIndex(i);
         }
