@@ -57,7 +57,7 @@ namespace NorskaLib.DependencyInjection
                 return instance;
 
             foreach (var registredType in instances.Keys)
-                if (type.IsAssignableFrom(registredType))
+                if (registredType.IsAssignableFrom(type))
                     return instances[registredType];
 
             Debug.LogWarning($"Couldn't resolve dependency for type {type}");
@@ -76,6 +76,13 @@ namespace NorskaLib.DependencyInjection
                 var value = Resolve(dependency.FieldType);
                 dependency.SetValue(target, value);
             }
+        }
+
+        public void Log()
+        {
+            Debug.Log($"Total dependencies registred:");
+            foreach (var pair in instances)
+                Debug.Log($"-> '{pair.Key.Name}'");
         }
     }
 }
