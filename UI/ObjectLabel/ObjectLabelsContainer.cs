@@ -81,7 +81,9 @@ namespace NorskaLib.UI
             var label = Instantiate(labelPref, rect);
             label.Rect.anchorMin = Vector2.zero; //new Vector2(0.5f, 0.5f);
             label.Rect.anchorMax = Vector2.zero; //new Vector2(0.5f, 0.5f);
+#if UNITY_EDITOR
             label.name = $"{label.GetType().Name} ({entry.transform.parent.name})";
+#endif
 
             label.Setup(entry);
             labels.Add(entry, label);

@@ -4,12 +4,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using NorskaLib.Storage;
 using System.IO;
 using System.Linq;
+using NorskaLib.Storage;
+using NorskaLib.DependencyInjection;
 
 public class LocalStorageEditorWindow : EditorWindow
 {
+    #region Dependencies
+
+    private LocalStorage LocalStorage;
+    //private LocalStorageManager
+
+    #endregion
+
     private Dictionary<string, bool> foldoutObjects = new Dictionary<string, bool>();
     private Dictionary<Type, bool> foldoutModules = new Dictionary<Type, bool>();
     private bool foldoutFiles = false;
@@ -28,19 +36,6 @@ public class LocalStorageEditorWindow : EditorWindow
         public const string State = "State";
     }
 
-    [MenuItem("Window/Norska/Local Storage/Clear State")]
-    public static void Clear()
-    {
-        if (Application.isPlaying)
-        {
-            Debug.LogError("Not available in play mode!");
-            return;
-        }
-
-        //var path = $"{Application.persistentDataPath}/{BinaryLocalStorage.FileName}.bin";
-        //File.Delete(path);
-    }
-
     [MenuItem("Window/Norska/Local Storage/View State")]
     public static new void Show()
     {
@@ -57,63 +52,68 @@ public class LocalStorageEditorWindow : EditorWindow
             return;
         }
 
-        if (BinaryLocalStorage.Instance == null)
+        if (DependencyContainer.Instance is null)
         {
+            EditorGUILayout.LabelField("Dependency injection is uninitialized...");
+            return;
+        }
+
+        if (LocalStorage is null)
+        {
+            LocalStorage = DependencyContainer.Instance.Resolve<LocalStorage>();
             EditorGUILayout.LabelField("No LocalStorage instance registred...");
             return;
         }
 
-        var instance = BinaryLocalStorage.Instance;
-        if (!instance.IsInitialized)
+        if (!LocalStorage.IsInitialized)
         {
             EditorGUILayout.LabelField("Instance is not initialized...");
             return;
         }
 
-        TryDrawFiles(instance);
+        //TryDrawFiles(instance);
 
         var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         var modulesSharedFieldInfo = typeof(BinaryLocalStorage).GetField(StorageMembersNames.modulesShared, bindingFlags);
-        var modulesShared = modulesSharedFieldInfo.GetValue(instance) as IStorageModule[];
+        var modulesShared = modulesSharedFieldInfo.GetValue(LocalStorage) as IStorageModule[];
         TryDrawModules(modulesShared, "Shared state:");
 
-        if (!string.IsNullOrEmpty(instance.LoadedSlotName))
+        if (!string.IsNullOrEmpty(LocalStorage.ActiveSlot))
         {
             var modulesSlotFieldInfo = typeof(BinaryLocalStorage).GetField(StorageMembersNames.modulesSlot, bindingFlags);
-            var modulesSlot = modulesSlotFieldInfo.GetValue(instance) as IStorageModule[];
-            TryDrawModules(modulesSlot, $"Slot '{instance.LoadedSlotName}':");
+            var modulesSlot = modulesSlotFieldInfo.GetValue(LocalStorage) as IStorageModule[];
+            TryDrawModules(modulesSlot, $"Slot '{LocalStorage.ActiveSlot}':");
         }
         else
         {
             EditorGUILayout.LabelField("No slot loaded", labelStyleItalic);
         }
-
     }
 
-    private void TryDrawFiles(BinaryLocalStorage instance)
-    {
-        foldoutFiles = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutFiles, "Files:");
-        if (foldoutFiles)
-        {
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUI.indentLevel++;
+    //private void TryDrawFiles(BinaryLocalStorage instance)
+    //{
+    //    foldoutFiles = EditorGUILayout.BeginFoldoutHeaderGroup(foldoutFiles, "Files:");
+    //    if (foldoutFiles)
+    //    {
+    //        EditorGUI.BeginDisabledGroup(true);
+    //        EditorGUI.indentLevel++;
 
-            if (instance.ExistingSlots.Any())
-            {
-                foreach (var slotname in instance.ExistingSlots)
-                    EditorGUILayout.TextField("Slot", slotname);
-            }
-            else
-            {
-                EditorGUILayout.LabelField("-No files detected-", labelStyleItalic);
-            }
+    //        if (instance.ExistingSlots.Any())
+    //        {
+    //            foreach (var slotname in instance.ExistingSlots)
+    //                EditorGUILayout.TextField("Slot", slotname);
+    //        }
+    //        else
+    //        {
+    //            EditorGUILayout.LabelField("-No files detected-", labelStyleItalic);
+    //        }
 
-            EditorGUI.indentLevel--;
-            EditorGUI.EndDisabledGroup();
-        }
-        EditorGUILayout.EndFoldoutHeaderGroup();
-    }
+    //        EditorGUI.indentLevel--;
+    //        EditorGUI.EndDisabledGroup();
+    //    }
+    //    EditorGUILayout.EndFoldoutHeaderGroup();
+    //}
 
     private void TryDrawModules(IEnumerable<IStorageModule> collection, string headerText)
     {

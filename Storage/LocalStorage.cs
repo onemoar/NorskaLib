@@ -12,8 +12,9 @@ namespace NorskaLib.Storage
         protected IStorageModule[] modulesShared;
         protected IStorageModule[] modulesSlot;
 
-        public abstract string LoadedSlotName { get; }
-        public abstract IEnumerable<string> ExistingSlots { get; }
+        public abstract string ActiveSlot { get; }
+
+        public Action<string> onSlotChanged;
 
         public bool IsInitialized { get; private set; }
 
@@ -40,12 +41,8 @@ namespace NorskaLib.Storage
             RegisterModules(ref modulesShared, true);
             RegisterModules(ref modulesSlot, false);
 
-            DetectSlots();
-
             IsInitialized = true;
         }
-
-        protected abstract void DetectSlots();
 
         public abstract void LoadShared(string name);
 
@@ -53,20 +50,20 @@ namespace NorskaLib.Storage
 
         public abstract void SaveShared(string name);
 
+        public abstract void SaveSlot(string name);
+
         /// <summary>
         /// Saves current loaded slot.
         /// </summary>
         public void SaveSlot()
         {
-            if (string.IsNullOrEmpty(LoadedSlotName))
+            if (string.IsNullOrEmpty(ActiveSlot))
             {
                 Debug.LogError($"No slot loaded!");
                 return;
             }
 
-            SaveSlot(LoadedSlotName);
+            SaveSlot(ActiveSlot);
         }
-
-        public abstract void SaveSlot(string name);
     }
 }

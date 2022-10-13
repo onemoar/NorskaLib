@@ -6,9 +6,10 @@ using Label = TMPro.TextMeshProUGUI;
 
 namespace NorskaLib.UI
 {
-	public class ValueText : MonoBehaviour
+	public class ValueLabel : MonoBehaviour
 	{
 		[SerializeField] Label label;
+		public Label Label => label;
 		public string textFormat;
 
 		[Space]

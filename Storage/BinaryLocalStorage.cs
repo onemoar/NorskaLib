@@ -36,11 +36,8 @@ namespace NorskaLib.Storage
             }
         }
 
-        private string loadedSlotName;
-        public override string LoadedSlotName => loadedSlotName;
-
-        private List<string> existingSlots = new List<string>(3);
-        public override IEnumerable<string> ExistingSlots => existingSlots;
+        private string activeSlot;
+        public override string ActiveSlot => activeSlot;
 
         private void LoadModules(string filename,IStorageModule[] collection)
         {
@@ -53,20 +50,17 @@ namespace NorskaLib.Storage
                     if (modulesData.TryGetValue(module.GetType(), out var data))
                     {
                         module.SetSerializedState(data);
-                        Debug.Log($"Setting serialized state for module {module.GetType()} from file...");
                     }
                     else
                     {
                         module.CreateDefaultState();
                         wantUpdateFile |= true;
-                        Debug.Log($"Creating default state for module {module.GetType()}...");
                     }
                 }
                 else
                 {
                     module.CreateDefaultState();
                     wantUpdateFile |= true;
-                    Debug.Log($"Creating default state for module {module.GetType()}...");
                 }
 
             if (wantUpdateFile)
@@ -76,7 +70,6 @@ namespace NorskaLib.Storage
         private void Write(string filename, IEnumerable<IStorageModule> modules)
         {
             var path = GetPath(filename);
-            Debug.Log($"Writing to file '{path}'...");
 
             var formatter = new BinaryFormatter();
             var stream = new FileStream(path, FileMode.Create);
@@ -96,8 +89,6 @@ namespace NorskaLib.Storage
                 return false;
             }
 
-            Debug.Log($"Reading from file '{path}'...");
-
             var formatter = new BinaryFormatter();
             var stream = new FileStream(path, FileMode.Open);
 
@@ -105,14 +96,6 @@ namespace NorskaLib.Storage
             stream.Close();
 
             return true;
-        }
-
-        protected override void DetectSlots()
-        {
-            existingSlots = Directory
-                .GetFiles(Application.persistentDataPath, $"*.{FileFormat}", SearchOption.TopDirectoryOnly)
-                .Select(f => Path.GetFileNameWithoutExtension(f))
-                .ToList();
         }
 
         public override void LoadShared(string name)
@@ -123,7 +106,6 @@ namespace NorskaLib.Storage
                 return;
             }
 
-            Debug.Log($"Loading shared modules '{name}'");
             LoadModules(name, modulesShared);
         }
 
@@ -135,10 +117,9 @@ namespace NorskaLib.Storage
                 return;
             }
 
-            Debug.Log($"Loading substituted modules of save slot '{name}'.");
             LoadModules(name, modulesSlot);
 
-            loadedSlotName = name;
+            activeSlot = name;
         }
 
         public override void SaveShared(string name)
@@ -161,6 +142,40 @@ namespace NorskaLib.Storage
             }
 
             Write(name, modulesSlot);
+
+            onSlotChanged?.Invoke(name);
+        }
+
+        public static FileData[] GetExistingFiles(string namePattern = null)
+        {
+            //Debug.Log($"Detecting files at {Application.persistentDataPath}...");
+
+            var searchPattern = string.IsNullOrEmpty(namePattern)
+                ? $"*.{FileFormat}"
+                : $"{namePattern}*.{FileFormat}";
+
+            //Debug.Log($"Search pattern is {searchPattern}...");
+
+            var result = Directory
+                .GetFiles(Application.persistentDataPath, searchPattern, SearchOption.TopDirectoryOnly)
+                .Select(path => new FileData()
+                    {
+                        name = Path.GetFileNameWithoutExtension(path),
+                        dateModified = File.GetLastWriteTime(path),
+                    })
+                .OrderByDescending(d => d.dateModified)
+                .ToArray();
+
+            //if (result.Length == 0)
+            //    Debug.Log($"No files detected...");
+            //else
+            //{
+            //    Debug.Log($"Detected save files:");
+            //    foreach (var data in result)
+            //        Debug.Log($"-> '{data.name}'");
+            //}
+
+            return result;
         }
     }
 }
