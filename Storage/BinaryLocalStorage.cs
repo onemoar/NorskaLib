@@ -79,6 +79,16 @@ namespace NorskaLib.Storage
             stream.Close();
         }
 
+        private void TryDelete(string filename)
+        {
+            var path = GetPath(filename);
+
+            if (!File.Exists(path))
+                return;
+
+            File.Delete(path);
+        }
+
         private bool TryRead(string filename, out Dictionary<Type, byte[]> data)
         {
             var path = GetPath(filename);
@@ -142,6 +152,13 @@ namespace NorskaLib.Storage
             }
 
             Write(name, modulesSlot);
+
+            onSlotChanged?.Invoke(name);
+        }
+
+        public override void DeleteSlot(string name)
+        {
+            TryDelete(name);
 
             onSlotChanged?.Invoke(name);
         }

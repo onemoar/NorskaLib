@@ -52,6 +52,8 @@ namespace NorskaLib.Storage
 
         public abstract void SaveSlot(string name);
 
+        public abstract void DeleteSlot(string name);
+
         /// <summary>
         /// Saves current loaded slot.
         /// </summary>

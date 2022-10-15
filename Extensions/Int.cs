@@ -17,8 +17,17 @@ namespace NorskaLib.Extensions
 
         public static bool IsBetween(this int value, int min, int max, bool exclusiveMin = false, bool exclusiveMax = false)
         {
-            return exclusiveMin ? value > min : value >= min
-                && exclusiveMax ? value < max : value <= max;
+            static bool CompareToMin(int value, int min, bool exclusive)
+            {
+                return exclusive ? value > min : value >= min;
+            }
+
+            static bool CompareToMax(int value, int max, bool exclusive)
+            {
+                return exclusive ? value < max : value <= max;
+            }
+
+            return CompareToMin(value, min, exclusiveMin) && CompareToMax(value, max, exclusiveMax);
         }
     }
 }

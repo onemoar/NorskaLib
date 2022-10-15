@@ -15,11 +15,17 @@ namespace NorskaLib.Utilities
             return enumArray;
         }
 
+        /// <summary>
+        /// Is fast and non-alocating alernative to native Enum.HasFlag(Enum).
+        /// </summary>
         public static bool HasFlag(int mask, int layer)
         {
             return (mask & layer) != 0;
         }
 
+        /// <summary>
+        /// Is fast and non-alocating alernative to native Enum.HasFlag(Enum).
+        /// </summary>
         public static bool HasFlag(LayerMask mask, int layer)
         {
             return mask == (mask | (1 << layer));

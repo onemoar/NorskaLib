@@ -15,14 +15,19 @@ namespace NorskaLib.Extensions
             return value * value * value;
         }
 
-        public static bool IsBetweenInclusive(this float value, float min, float max)
+        public static bool IsBetween(this float value, float min, float max, bool exclusiveMin = false, bool exclusiveMax = false)
         {
-            return value >= min && value <= max;
-        }
+            static bool CompareToMin(float value, float min, bool exclusive)
+            {
+                return exclusive ? value > min : value >= min;
+            }
 
-        public static bool IsBetweenExclusive(this float value, float min, float max)
-        {
-            return value > min && value < max;
+            static bool CompareToMax(float value, float max, bool exclusive)
+            {
+                return exclusive ? value < max : value <= max;
+            }
+
+            return CompareToMin(value, min, exclusiveMin) && CompareToMax(value, max, exclusiveMax);
         }
     }
 }

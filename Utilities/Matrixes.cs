@@ -28,6 +28,7 @@ namespace NorskaLib
             return result;
         }
 
+        // TO DO:
         public static T[,] Turn<T>(T[,] original, bool clockwise = true, bool full = false)
         {
             var I = original.GetLength(0);
