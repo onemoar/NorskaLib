@@ -35,7 +35,7 @@ namespace NorskaLib.TimeControl
             public TimescaleRequestView(TimescaleRequest request)
             {
                 this.source = request.source;
-                this.value = request.value;
+                this.value = request.scale;
                 this.releaseOnDisabled = request.releaseOnDisabled;
                 this.soft = request.soft;
             }
