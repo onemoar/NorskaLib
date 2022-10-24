@@ -6,14 +6,13 @@ using System.Linq;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-namespace Game
+namespace NorskaLib.TimeControl
 {
-    public class TimeController : MonoBehaviour
+    public sealed partial class TimeController : MonoBehaviour
     {
         public static Action<float> onTimeScaleChanged = (value) => { };
 
         public static TimeController Instance { get; private set; }
-
 
         private float timeScale = 1;
         public float TimeScale
@@ -31,8 +30,6 @@ namespace Game
         void Awake()
         {
             Instance = this;
-
-            requests = new List<TimescaleRequest>(3);
         }
 
         void Update()
@@ -42,8 +39,8 @@ namespace Game
 
             if (requests.Count > 0)
             {
-                var removedCount = requests.RemoveAll(r => 
-                    r.source == null 
+                var removedCount = requests.RemoveAll(r =>
+                    r.source == null
                     || (r.releaseOnDisabled && !r.source.activeInHierarchy));
                 if (removedCount > 0)
                     SetupLerp();
@@ -58,7 +55,7 @@ namespace Game
                 else
                 {
                     useLerp = currentRequest.soft;
-                    targetScale = currentRequest.value;
+                    targetScale = currentRequest.scale;
                 }
             }
             else
@@ -69,10 +66,10 @@ namespace Game
 
             if (useLerp)
             {
-                if (lerpTimer < lerpDuration)
+                if (lerpTimer < softScaleDuration)
                     lerpTimer += Time.deltaTime;
 
-                var t = lerpTimer / lerpDuration;
+                var t = lerpTimer / softScaleDuration;
                 TimeScale = Mathf.Lerp(lerpInitValue, targetScale, t);
             }
             else
@@ -81,14 +78,14 @@ namespace Game
             }
         }
 
-        [SerializeField] float lerpDuration   = 0.5f;
-        private float lerpInitValue           = 1f;
-        private float lerpTimer               = 0f;
+        [SerializeField] float softScaleDuration = 0.3f;
+        private float lerpInitValue = 1f;
+        private float lerpTimer = 0f;
 
         private void SetupLerp()
         {
-            lerpInitValue   = timeScale;
-            lerpTimer       = 0f;
+            lerpInitValue = timeScale;
+            lerpTimer = 0f;
         }
 
         #region Default scale management
@@ -106,35 +103,40 @@ namespace Game
 
         #region Requests management
 
-        private List<TimescaleRequest> requests;
+        private List<TimescaleRequest> requests = new(3);
 
         public class TimescaleRequest
         {
-            public readonly GameObject source;
-            public readonly float value;
-            public readonly bool releaseOnDisabled;
-            public readonly bool soft;
-
-            public TimescaleRequest(GameObject source, float value, bool soft = true, bool releaseOnDisabled = true)
-            {
-                this.source = source;
-                this.value = value;
-                this.releaseOnDisabled = releaseOnDisabled;
-                this.soft = soft;
-            }  
+            public GameObject source;
+            public float scale;
+            public bool releaseOnDisabled;
+            public bool soft;
         }
 
         /// <summary>
         /// If this source is already present in request queue, it will be replaced.
         /// </summary>
         /// <param name="request"></param>
-        public void RequireScale(TimescaleRequest request)
+        public void Request(GameObject source, float scale, bool soft = false, bool releaseOnDisabled = true)
         {
-            var clone = requests.FirstOrDefault(r => r.source == request.source);
-            if (clone != null)
-                requests.Remove(clone);
+            var clone = requests.FirstOrDefault(r => r.source == source);
+            if (clone is null)
+            {
+                requests.Add(new TimescaleRequest()
+                {
+                    source = source,
+                    scale = scale,
+                    soft = soft,
+                    releaseOnDisabled = releaseOnDisabled
+                });
+            }
+            else
+            {
+                clone.scale = scale;
+                clone.soft = soft;
+                clone.releaseOnDisabled = releaseOnDisabled;
+            }
 
-            requests.Add(request);
             UpdateRequestsSorting();
         }
 
@@ -142,7 +144,7 @@ namespace Game
         /// Discarding request from this source.
         /// </summary>
         /// <param name="source"></param>
-        public void UnrequireScale(GameObject source)
+        public void Unrequest(GameObject source)
         {
             var request = requests.FirstOrDefault(r => r.source == source);
             if (request is null)
@@ -154,54 +156,9 @@ namespace Game
 
         private void UpdateRequestsSorting()
         {
-            requests = requests.OrderBy(r => r.value).ToList();
+            requests = requests.OrderBy(r => r.scale).ToList();
         }
 
-        #endregion
-
-        #region Debugging
-#if UNITY_EDITOR
-
-        [Header("Debugging")]
-
-        [Range(0,2)][DisableIf("@true")]
-        public float currentScaleView;
-        [Range(0, 2)][DisableIf("@true")]
-        public float defaultScaleView;
-
-        [DisableIf("@true")]
-        public float lerpTimerView;
-
-        [DisableIf("@true")]
-        public TimescaleRequestView[] requestsView;
-
-        [System.Serializable]
-        public struct TimescaleRequestView
-        {
-            public GameObject source;
-            public float value;
-            public bool releaseOnDisabled;
-            public bool soft;
-
-            public TimescaleRequestView(TimescaleRequest request)
-            {
-                this.source = request.source;
-                this.value = request.value;
-                this.releaseOnDisabled = request.releaseOnDisabled;
-                this.soft = request.soft;
-            }
-        }
-
-        void LateUpdate()
-        {
-            currentScaleView = timeScale;
-            defaultScaleView = defaultScale;
-            lerpTimerView = lerpTimer;
-
-            requestsView = requests.Select(r => new TimescaleRequestView(r)).ToArray();
-        }
-
-#endif
         #endregion
     }
 }

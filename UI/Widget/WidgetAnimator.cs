@@ -22,16 +22,16 @@ namespace NorskaLib.UI.Widgets
 
 		[Space]
 
-		[BoxGroup("Auto-Animate")]
+		[FoldoutGroup("Auto-Animate"), LabelText("On Enable")]
 		public bool animateOnEnable;
-		[BoxGroup("Auto-Animate")]
+		[FoldoutGroup("Auto-Animate")]
 		[EnableIf("@animateOnEnable")]
 		public bool oneShot;
 		private bool oneShotDone;
 
 		[Space]
 
-		[BoxGroup("Auto-Animate")]
+		[FoldoutGroup("Auto-Animate"), LabelText("Pointer Press")]
 		public bool animatePress;
 
 		[Space]
@@ -72,12 +72,10 @@ namespace NorskaLib.UI.Widgets
 			ClearTweens();
 		}
 
-		[Button]
 		public void SetIn()
 		{
 			Set(true);
 		}
-		[Button]
 		public void SetOut()
 		{
 			Set(false);
@@ -106,12 +104,10 @@ namespace NorskaLib.UI.Widgets
 				tween.Play();
 		}
 
-		[Button]
 		public void AnimateIn(bool reset = false)
 		{
 			Animate(true, reset);
 		}
-		[Button]
 		public void AnimateOut(bool reset = false)
 		{
 			Animate(false, reset);
