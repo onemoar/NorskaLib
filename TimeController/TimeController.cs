@@ -8,9 +8,9 @@ using Sirenix.OdinInspector;
 
 namespace NorskaLib.TimeControl
 {
-    public sealed partial class TimeController : MonoBehaviour
+    public partial class TimeController : MonoBehaviour
     {
-        public static Action<float> onTimeScaleChanged = (value) => { };
+        public Action<float> onTimeScaleChanged;
 
         public static TimeController Instance { get; private set; }
 
@@ -27,12 +27,12 @@ namespace NorskaLib.TimeControl
             }
         }
 
-        void Awake()
+        protected virtual void Awake()
         {
             Instance = this;
         }
 
-        void Update()
+        protected virtual void Update()
         {
             bool useLerp;
             float targetScale;

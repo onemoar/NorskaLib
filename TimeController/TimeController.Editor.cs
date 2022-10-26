@@ -7,7 +7,7 @@ using UnityEngine;
 namespace NorskaLib.TimeControl
 {
 #if UNITY_EDITOR
-    public sealed partial class TimeController
+    public partial class TimeController
     {
         [Header("Debugging")]
 
