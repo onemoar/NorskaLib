@@ -44,19 +44,24 @@ namespace NorskaLib.UI.Widgets
 		[SerializeField] FadeModule fadeModule;
 
 		private Module[] modules;
+		private Module[] Modules
+        {
+			get
+            {
+				if (modules is null)
+					modules = new Module[]
+					{
+						scaleModule,
+						anchorModule,
+						fadeModule
+					};
+
+				return modules;
+			}
+        }
 		private List<Tween> tweens = new();
 
 		public Action onAnimationFinished;
-
-        void Awake()
-        {
-			modules = new Module[]
-            {
-				scaleModule,
-				anchorModule,
-				fadeModule
-			};
-		}
 
         void OnEnable()
         {
@@ -82,7 +87,7 @@ namespace NorskaLib.UI.Widgets
 		}
 		private void Set(bool @in)
 		{
-            foreach (var module in modules)
+            foreach (var module in Modules)
             {
 				if (!module.enabled)
 					continue;
@@ -131,7 +136,7 @@ namespace NorskaLib.UI.Widgets
 
 		private void CreateTweens(ref List<Tween> collection, bool @in, bool reset, bool loop)
 		{
-			foreach (var module in modules)
+			foreach (var module in Modules)
 			{
 				if (!module.enabled)
 					continue;

@@ -8,7 +8,7 @@ using Sirenix.OdinInspector;
 
 namespace NorskaLib.UI
 {
-    public class ScreenManager : MonoBehaviour
+    public class WindowsManager : MonoBehaviour
     {
         [SerializeField] Canvas canvas;
 
@@ -56,21 +56,21 @@ namespace NorskaLib.UI
 
         #endregion
 
-        #region Screens properties
+        #region Windows properties
 
         private struct KeyWords
         {
-            public const string Screens     = "Screens";
+            public const string Windows     = "Windows";
 
             public const string MaskFull    = "MaskFull";
             public const string MaskScene   = "MaskScene";
         }
 
-        private RectTransform screensContainer;
+        private RectTransform windowsContainer;
 
-        public const string ScreensFolder = "Screens";
-        private Dictionary<System.Type, Screen> screens;
-        private Dictionary<string, Screen> screensPrefabs;
+        public const string WindowsFolder = "Windows";
+        private Dictionary<System.Type, Window> windows;
+        private Dictionary<string, Window> windowsPrefabs;
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace NorskaLib.UI
             var children = new Dictionary<string, RectTransform>()
             {
                 { KeyWords.MaskScene,   null },
-                { KeyWords.Screens,     null },
+                { KeyWords.Windows,     null },
                 { KeyWords.MaskFull,    null }
             };
             for (int i = 0; i < children.Count; i++)
@@ -127,134 +127,142 @@ namespace NorskaLib.UI
 
             #endregion
 
-            #region Screens initialization
+            #region Windows initialization
 
-            screensContainer    = children[KeyWords.Screens];
-            screens             = new();
-            screensPrefabs      = new();
+            windowsContainer    = children[KeyWords.Windows];
+            windows             = new();
+            windowsPrefabs      = new();
+
+            UI.Events.onWindowOrderChanged += OnWindowOrderChanged;
 
             #endregion
         }
 
         void OnDestroy()
         {
-            // Masks uninitialization
+            // Masks deinitialization
             if (maskHandlers != null)
                 foreach (var h in maskHandlers)
                     h.Value?.Stop();
+
+            // Screen deinitialization
+            UI.Events.onWindowOrderChanged -= OnWindowOrderChanged;
         }
 
-        #region Screens 
+        #region Windows 
 
-        public Screen GetScreenPrefab(Type type, string prefabName = null)
+        public Window GetWindowPrefab(Type type, string prefabName = null)
         {
             var filename = !string.IsNullOrEmpty(prefabName)
                 ? prefabName
                 : type.Name;
 
-            if (!screensPrefabs.TryGetValue(filename, out var prefab))
-            {
-                var path = $"{ScreensFolder}/{filename}";
-                prefab = Resources.Load(path, type) as Screen;
-                if (prefab != null)
-                {
-                    screensPrefabs.Add(filename, prefab);
-                    return prefab;
-                }
-                else
-                {
-                    Debug.LogError($"Prefab for screen type '{type.Name}' named '{filename}' not found.");
-                    return null;
-                }
-            }
+            if (windowsPrefabs.TryGetValue(filename, out var prefab))
+                return prefab;
+
+            var path = $"{WindowsFolder}/{filename}";
+            prefab = Resources.Load(path, type) as Window;
+            if (prefab != null)
+                windowsPrefabs.Add(filename, prefab);
+            else
+                Debug.LogError($"Prefab for screen type '{type.Name}' named '{filename}' not found.");
 
             return prefab;
         }
 
-        public T GetScreen<T>() where T : Screen
+        public W GetWindow<W>() where W : Window
         {
-            var type = typeof(T);
+            var type = typeof(W);
 
-            if (screens.ContainsKey(type))
-                return screens[type] as T;
+            if (windows.ContainsKey(type))
+                return windows[type] as W;
             else
                 return null;
         }
 
-        public T ShowScreen<T>(ShowScreenMode mode = ShowScreenMode.Additive, int order = 0, bool animated = false, string prefabName = null) where T : Screen
+        public W ShowWindow<W>(ShowWindowMode mode = ShowWindowMode.Additive, int order = 0, bool animated = false, string prefabName = null) where W : Window
         {
-            var type = typeof(T);
+            var type = typeof(W);
 
-            if (!screens.TryGetValue(type, out var screen) || screen == null)
+            if (!windows.TryGetValue(type, out var window) || window == null)
             {
-                var prefab = GetScreenPrefab(type, prefabName);
-                screen = Instantiate(prefab, screensContainer);
-                screen.Initialize(this);
+                var prefab = GetWindowPrefab(type, prefabName);
+                window = Instantiate(prefab, windowsContainer);
 
-                screens.Add(type, screen);
+                windows.Add(type, window);
             }
 
             switch (mode)
             {
                 default:
-                case ShowScreenMode.Additive:
+                case ShowWindowMode.Additive:
                     break;
-                case ShowScreenMode.Single:
-                    foreach (var s in screens)
-                        if (s.Value != screen)
-                            HideScreen(s.Value);
+
+                case ShowWindowMode.Single:
+                    foreach (var s in windows)
+                        if (s.Value != window)
+                            HideWindow(s.Value);
                     break;
-                case ShowScreenMode.SoloInLayer:
-                    foreach (var s in screens)
-                        if (s.Value != screen && s.Value.Order == order)
-                            HideScreen(s.Value);
+
+                case ShowWindowMode.SoloInLayer:
+                    foreach (var s in windows)
+                        if (s.Value != window && s.Value.Order == order)
+                            HideWindow(s.Value);
                     break;
             }
 
-            screen.Order = order;
-            screen.Show(animated);
+            window.Order = order;
+            window.Show(animated);
 
-            UpdateScreensOrder();
+            UpdateWindowsOrder();
 
-            return screen as T;
+            return window as W;
         }
-        public Screen ShowScreen(Screen screen, bool animated = false)
+        public Window ShowWindow(Window screen, bool animated = false)
         {
             screen.Show(animated);
 
             return screen;
         }
 
-        public void HideScreen<T>(bool animated = false, bool destroy = false) where T : Screen
+        public void HideWindow<W>(bool animated = false, bool destroy = false) where W : Window
         {
-            var type = typeof(T);
+            var type = typeof(W);
 
-            if (!screens.TryGetValue(type, out var screen))
+            if (!windows.TryGetValue(type, out var window))
                 return;
 
             if (destroy)
-                screens.Remove(type);
-            screen.Hide(animated, destroy);
+                windows.Remove(type);
+            window.Hide(animated, destroy);
         }
-        public void HideScreen(Screen screen, bool animated = false, bool destroy = false)
+        public void HideWindow(Window window, bool animated = false, bool destroy = false)
         {
-            var type = screen.GetType();
+            var type = window.GetType();
 
             if (destroy)
-                screens.Remove(type);
-            screen.Hide(animated, destroy);
+                windows.Remove(type);
+            window.Hide(animated, destroy);
         }
         public void HideAll(bool animated = false, bool destroy = false)
         {
-            foreach (var pair in screens)
-                HideScreen(pair.Value, animated, destroy);
+            foreach (var pair in windows)
+                HideWindow(pair.Value, animated, destroy);
         }
 
-        public void UpdateScreensOrder()
+        private void OnWindowOrderChanged(Window source, int order)
         {
-            var screensSorted = screens.Values.OrderBy(s => s.Order).ToArray();
-            for (int i = 0; i < screensSorted.Length; i++)
-                screensSorted[i].Rect.SetSiblingIndex(i);
+            if (!windows.ContainsValue(source))
+                return;
+
+            UpdateWindowsOrder();
+        }
+
+        public void UpdateWindowsOrder()
+        {
+            var windowsSorted = windows.Values.OrderBy(s => s.Order).ToArray();
+            for (int i = 0; i < windowsSorted.Length; i++)
+                windowsSorted[i].Rect.SetSiblingIndex(i);
         }
 
         #endregion

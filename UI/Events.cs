@@ -7,10 +7,17 @@ namespace NorskaLib.UI
 {
     public static class Events
     {
-        public static Action<string> onWidgetClick = (id) => { };
+        /// <summary>
+        /// Params: string - widget id
+        /// </summary>
+        public static Action<string> onWidgetClick;
 
-        public static Action<Screen> onScreenShown = (screen) => { };
-        public static Action<Screen> onScreenHidden = (screen) => { };
-        public static Action<Screen> onScreenDestroyed = (screen) => { };
+        /// <summary>
+        /// Params: screen - source object, int - new order
+        /// </summary>
+        public static Action<Window, int> onWindowOrderChanged;
+        public static Action<Window> onWindowShown;
+        public static Action<Window> onWindowHidden;
+        public static Action<Window> onWindowDestroyed;
     }
 }

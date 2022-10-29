@@ -7,10 +7,8 @@ using UnityEngine;
 namespace NorskaLib.UI
 {
     [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
-    public abstract class Screen : MonoBehaviour
+    public abstract class Window : MonoBehaviour
     {
-        protected ScreenManager ScreenManager;
-
         public RectTransform Rect
         { get; private set; }
         protected CanvasGroup Group
@@ -24,12 +22,15 @@ namespace NorskaLib.UI
 
             set
             {
+                if (order == value)
+                    return;
+
 #if UNITY_EDITOR
                 name = $"{this.GetType().Name} (Layer: {value})";
 #endif
 
                 order = value;
-                ScreenManager.UpdateScreensOrder();
+                UI.Events.onWindowOrderChanged?.Invoke(this, value);
             }
         }
 
@@ -46,12 +47,7 @@ namespace NorskaLib.UI
         protected virtual void OnDestroy()
         {
             fadeTween?.Kill(true);
-            UI.Events.onScreenDestroyed.Invoke(this);
-        }
-
-        internal void Initialize(ScreenManager manager)
-        {
-            ScreenManager = manager;
+            UI.Events.onWindowDestroyed?.Invoke(this);
         }
 
         public void SetAlpha(float alpha, float duration = 0)
@@ -67,7 +63,7 @@ namespace NorskaLib.UI
             void Finish()
             {
                 Group.alpha = 1;
-                UI.Events.onScreenShown.Invoke(this);
+                UI.Events.onWindowShown?.Invoke(this);
             }
             
             IEnumerator Routine()
@@ -97,7 +93,7 @@ namespace NorskaLib.UI
                     Group.alpha = 0;
                 }
 
-                UI.Events.onScreenHidden.Invoke(this);
+                UI.Events.onWindowHidden?.Invoke(this);
             }
 
             IEnumerator Routine()
