@@ -49,6 +49,12 @@ namespace NorskaLib.TimeControl
 
             requestsView = requests.Select(r => new TimescaleRequestView(r)).ToArray();
         }
+
+        [Button]
+        private void SetDefaultScaleEditor(float value)
+        {
+            SetDefaultScale(value);
+        }
     }
 #endif
 }

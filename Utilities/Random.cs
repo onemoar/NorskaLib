@@ -17,20 +17,31 @@ namespace NorskaLib.Utilities
             return Bool(chance, out var dice);
         }
 
+        public static int Range(int min, int max, int exeption)
+        {
+            var pool = new List<int>();
+            for (int i = min; i < max; i++)
+                if (i != exeption)
+                    pool.Add(i);
+
+            var index = UnityEngine.Random.Range(0, pool.Count);
+
+            return pool[index];
+        }
         public static int Range(int min, int max, int[] exeptions)
         {
             var pool = new List<int>();
             for (int i = min; i < max; i++)
             {
-                var exeption = false;
+                var exclude = false;
                 for (int j = 0; j < exeptions.Length; j++)
                     if (i == exeptions[j])
                     {
-                        exeption = true;
+                        exclude = true;
                         break;
                     }
 
-                if (!exeption)
+                if (!exclude)
                     pool.Add(i);
             }
 
@@ -43,9 +54,9 @@ namespace NorskaLib.Utilities
             return UnityEngine.Random.Range(min, max + 1);
         }
 
-        public static Vector3 Vector3()
+        public static Vector3 Vector3Normalized()
         {
-            return Vector3(-1, 1, -1, 1, -1, 1);
+            return Vector3(-1, 1, -1, 1, -1, 1).normalized;
         }
         public static Vector3 Vector3(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
         {

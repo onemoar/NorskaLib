@@ -34,8 +34,6 @@ namespace NorskaLib.UI.Widgets
 		[FoldoutGroup("Auto-Animate"), LabelText("Pointer Press")]
 		public bool animatePress;
 
-		[Space]
-
 		[BoxGroup("Modules"), LabelText("Scale")]
 		[SerializeField] ScaleModule scaleModule;
 		[BoxGroup("Modules"), LabelText("Anchored Position")]
