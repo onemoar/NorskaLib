@@ -85,7 +85,9 @@ namespace NorskaLib.UI.Widgets
 		}
 		private void Set(bool @in)
 		{
-            foreach (var module in Modules)
+			ClearTweens();
+
+			foreach (var module in Modules)
             {
 				if (!module.enabled)
 					continue;

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace NorskaLib.Utilities
 {
-    public struct Parsing
+    public struct ParsingUtils
     {
         public static object Parse(string s, Type type)
             => Parse(s, type, out var error);

@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace NorskaLib.Utilities
 {
-    public struct Colors
+    public struct ColorUtils
     {
         public static Color GetRGB(string RRGGBB)
         {
@@ -35,37 +36,39 @@ namespace NorskaLib.Utilities
             return new Color(r, g, b, a);
         }
 
-        public static string GetHEX(Color RGB)
+        public static string GetHEX(Color color)
         {
-            var r = Mathf.RoundToInt(RGB.r * 255);
-            var g = Mathf.RoundToInt(RGB.g * 255);
-            var b = Mathf.RoundToInt(RGB.b * 255);
+            var r = Mathf.RoundToInt(color.r * 255);
+            var g = Mathf.RoundToInt(color.g * 255);
+            var b = Mathf.RoundToInt(color.b * 255);
 
             var RR = Convert.ToString(r, 16);
             var GG = Convert.ToString(g, 16);
             var BB = Convert.ToString(b, 16);
 
-            return $"{RR}{GG}{BB}";
+            return RR + GG + BB;
         }
 
-        public static string GetHEXA(Color RGBA)
+        public static string GetHEXA(Color color)
         {
-            var r = Mathf.RoundToInt(RGBA.r * 255);
-            var g = Mathf.RoundToInt(RGBA.g * 255);
-            var b = Mathf.RoundToInt(RGBA.b * 255);
-            var a = Mathf.RoundToInt(RGBA.a * 255);
+            var components = new int[]
+            {
+                Mathf.RoundToInt(color.r * 255),
+                Mathf.RoundToInt(color.g * 255),
+                Mathf.RoundToInt(color.b * 255),
+                Mathf.RoundToInt(color.a * 255)
+            };
 
-            var RR = Convert.ToString(r, 16);
-            var GG = Convert.ToString(g, 16);
-            var BB = Convert.ToString(b, 16);
-            var AA = Convert.ToString(a, 16);
+            var stringBuilder = new StringBuilder(components.Length);
+            foreach (var c in components)
+                stringBuilder.Append(c > 0 ? Convert.ToString(c, 16) : "00");
 
-            return $"{RR}{GG}{BB}{AA}";
+            return stringBuilder.ToString();
         }
 
-        public static string Format(string text, Color RGBA)
+        public static string Format(string text, Color color)
         {
-            return $"<color=#{GetHEXA(RGBA)}>{text}</color>";
+            return $"<color=#{GetHEXA(color)}>{text}</color>";
         }
     }
 }
