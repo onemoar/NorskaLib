@@ -1,7 +1,5 @@
 ﻿using DG.Tweening;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace NorskaLib.UI
@@ -72,6 +70,7 @@ namespace NorskaLib.UI
                 Finish();
             }
 
+            StopAllCoroutines();
             gameObject.SetActive(true);
 
             if (animated)
@@ -102,6 +101,7 @@ namespace NorskaLib.UI
                 Finish();
             }
 
+            StopAllCoroutines();
             if (destroy && !gameObject.activeSelf)
             {
                 Destroy(this.gameObject);
