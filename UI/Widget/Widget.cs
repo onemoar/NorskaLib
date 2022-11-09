@@ -12,8 +12,7 @@ namespace NorskaLib.UI.Widgets
         public string Id => id;
 
         public RectTransform RectTransform { get; private set; }
-
-        private WidgetEvents events;
+        public WidgetEvents Events { get; private set; }
 
         #region MonoBehaviour
 
@@ -21,10 +20,10 @@ namespace NorskaLib.UI.Widgets
         {
             RectTransform = GetComponent<RectTransform>();
 
-            events = GetComponent<WidgetEvents>();
-            if (events != null)
+            Events = GetComponent<WidgetEvents>();
+            if (Events != null)
             {
-                events.onClick          += OnClick;
+                Events.onClick          += OnClick;
             }
 
             WidgetProvider.Instance.RegisterInstance(this);
@@ -42,9 +41,9 @@ namespace NorskaLib.UI.Widgets
 
         protected virtual void OnDestroy()
         {
-            if (events != null)
+            if (Events != null)
             {
-                events.onClick          -= OnClick;      
+                Events.onClick          -= OnClick;      
             }
 
             WidgetProvider.Instance.UnregisterInstance(this);
@@ -57,7 +56,7 @@ namespace NorskaLib.UI.Widgets
             if (string.IsNullOrEmpty(id))
                 return;
 
-            Events.onWidgetClick?.Invoke(this.id);
+            UI.Events.onWidgetClick?.Invoke(this.id);
         }
     }
 }

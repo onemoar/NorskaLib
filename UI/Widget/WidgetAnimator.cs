@@ -24,8 +24,7 @@ namespace NorskaLib.UI.Widgets
 
 		[FoldoutGroup("Auto-Animate"), LabelText("On Enable")]
 		public bool animateOnEnable;
-		[FoldoutGroup("Auto-Animate")]
-		[EnableIf("@animateOnEnable")]
+		[FoldoutGroup("Auto-Animate"), EnableIf("@animateOnEnable")]
 		public bool oneShot;
 		private bool oneShotDone;
 
@@ -33,6 +32,8 @@ namespace NorskaLib.UI.Widgets
 
 		[FoldoutGroup("Auto-Animate"), LabelText("Pointer Press")]
 		public bool animatePress;
+		[FoldoutGroup("Auto-Animate"), LabelText("Preset"), EnableIf("@animatePress")]
+		public bool presetPress;
 
 		[BoxGroup("Modules"), LabelText("Scale")]
 		[SerializeField] ScaleModule scaleModule;
@@ -68,9 +69,12 @@ namespace NorskaLib.UI.Widgets
 				oneShotDone = true;
 				AnimateIn(true);
             }
-        }
 
-        void OnDisable()
+			if (animatePress && presetPress)
+				SetIn();
+		}
+
+		void OnDisable()
 		{
 			ClearTweens();
 		}
