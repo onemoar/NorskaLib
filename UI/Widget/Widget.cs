@@ -6,10 +6,9 @@ using UnityEngine.EventSystems;
 namespace NorskaLib.UI.Widgets
 {
     [RequireComponent(typeof(RectTransform))]
-	public class Widget : MonoBehaviour
+	public abstract class Widget : MonoBehaviour
 	{
-        [SerializeField] string id;
-        public string Id => id;
+        public abstract string Id { get;  }
 
         public RectTransform RectTransform { get; private set; }
         public WidgetEvents Events { get; private set; }
@@ -53,10 +52,10 @@ namespace NorskaLib.UI.Widgets
 
         void OnClick(PointerEventData eventData)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(Id))
                 return;
 
-            UI.Events.onWidgetClick?.Invoke(this.id);
+            UI.Events.onWidgetClick?.Invoke(this.Id);
         }
     }
 }
