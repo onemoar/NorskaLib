@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,6 @@ using UnityEngine;
 
 namespace NorskaLib.TimeControl
 {
-#if UNITY_EDITOR
     public partial class TimeController
     {
         [Header("Debugging")]
@@ -50,11 +50,11 @@ namespace NorskaLib.TimeControl
             requestsView = requests.Select(r => new TimescaleRequestView(r)).ToArray();
         }
 
-        [Button]
-        private void SetDefaultScaleEditor(float value)
-        {
-            SetDefaultScale(value);
-        }
+        //[Button]
+        //private void SetDefaultScaleEditor(float value)
+        //{
+        //    SetDefaultScale(value);
+        //}
     }
-#endif
 }
+#endif
