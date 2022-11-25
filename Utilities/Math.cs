@@ -7,6 +7,15 @@ namespace NorskaLib.Utilities
 { 
     public struct MathUtils
     {
+        public static List<int> GetRange(int min, int max)
+        {
+            var list = new List<int>(max - min + 1);
+            for (int i = min; i <= max; i++)
+                list.Add(i);
+
+            return list;
+        }
+
         public static int[] GetRange(int min, int max, int[] exeptions)
         {
             var pool = new List<int>();
