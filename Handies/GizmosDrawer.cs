@@ -9,25 +9,27 @@ public class GizmosDrawer : MonoBehaviour
     public enum Shapes { Cube, Sphere, Custom }
     public enum Styles { Solid, Wired }
 
-
-    [SerializeField] Shapes shape;
+    public Shapes shape;
     [ShowIf("@shape == Shapes.Sphere"), LabelText("Radius")]
-    [SerializeField] float sphereRadius = 1;
+    public float sphereRadius = 1;
     [ShowIf("@shape == Shapes.Cube"), LabelText("Size")]
-    [SerializeField] Vector3 cubeSize = Vector3.one;
+    public Vector3 cubeSize = Vector3.one;
 
     [ShowIf("@shape == Shapes.Custom")]
-    [SerializeField] Mesh[] meshes;
+    public Mesh[] meshes;
 
     [Space]
-    [SerializeField] Styles style;
-    [SerializeField] Color color = Color.blue;
+
+    public Styles style;
+    public Color color = Color.blue;
 
     [Space]
-    [SerializeField] Modes drawMode;
-    [SerializeField] Vector3 offset;
+
+    public Modes drawMode;
+    public Vector3 offset;
 
     [Space]
+
     public bool drawForward;
 
     private void OnDrawGizmos()

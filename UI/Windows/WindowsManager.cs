@@ -51,7 +51,7 @@ namespace NorskaLib.UI
             Scene
         }
 
-        Dictionary<MaskType, DoTweenGraphicColorizer> maskHandlers;
+        //Dictionary<MaskType, DoTweenGraphicColorizer> maskHandlers;
         Dictionary<MaskType, Image> maskImages;
 
         #endregion
@@ -113,11 +113,11 @@ namespace NorskaLib.UI
                 { MaskType.Full,  children[KeyWords.MaskFull].gameObject.AddComponent<Image>() },
                 { MaskType.Scene,  children[KeyWords.MaskScene].gameObject.AddComponent<Image>() }
             };
-            maskHandlers = new Dictionary<MaskType, DoTweenGraphicColorizer>()
-            {
-                { MaskType.Full,  new DoTweenGraphicColorizer(maskImages[MaskType.Full])},
-                { MaskType.Scene,  new DoTweenGraphicColorizer(maskImages[MaskType.Scene])}
-            };
+            //maskHandlers = new Dictionary<MaskType, DoTweenGraphicColorizer>()
+            //{
+            //    { MaskType.Full,  new DoTweenGraphicColorizer(maskImages[MaskType.Full])},
+            //    { MaskType.Scene,  new DoTweenGraphicColorizer(maskImages[MaskType.Scene])}
+            //};
             foreach (var pair in maskImages)
             {
                 SetMaskAlpha(pair.Key, 0);
@@ -141,9 +141,9 @@ namespace NorskaLib.UI
         void OnDestroy()
         {
             // Masks deinitialization
-            if (maskHandlers != null)
-                foreach (var h in maskHandlers)
-                    h.Value?.Stop();
+            //if (maskHandlers != null)
+            //    foreach (var h in maskHandlers)
+            //        h.Value?.Stop();
 
             // Screen deinitialization
             UI.Events.onWindowOrderChanged -= OnWindowOrderChanged;
@@ -276,18 +276,18 @@ namespace NorskaLib.UI
 
         public void SetMaskAlpha(MaskType maskType, float alpha, float duration = 0)
         {
-            if (duration > 0)
-                maskHandlers[maskType].Transit(alpha, duration);
-            else
-                maskHandlers[maskType].SetAlpha(alpha);
+            //if (duration > 0)
+            //    maskHandlers[maskType].Transit(alpha, duration);
+            //else
+            //    maskHandlers[maskType].SetAlpha(alpha);
         }
 
         public void SetMaskColor(MaskType maskType, Color color, float duration = 0)
         {
-            if (duration > 0)
-                maskHandlers[maskType].Transit(color, duration);
-            else
-                maskHandlers[maskType].SetColor(color);
+            //if (duration > 0)
+            //    maskHandlers[maskType].Transit(color, duration);
+            //else
+            //    maskHandlers[maskType].SetColor(color);
         }
 
         #endregion
