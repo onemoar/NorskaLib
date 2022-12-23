@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections;
+﻿using DG.Tweening;
+using NorskaLib.Extensions;
+using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using Sirenix.OdinInspector;
 
 namespace NorskaLib.UI
 {
@@ -51,8 +52,8 @@ namespace NorskaLib.UI
             Scene
         }
 
-        //Dictionary<MaskType, DoTweenGraphicColorizer> maskHandlers;
-        Dictionary<MaskType, Image> maskImages;
+        private Dictionary<MaskType, Image> maskImages;
+        private Dictionary<MaskType, Tween> maskTweens;
 
         #endregion
 
@@ -108,16 +109,16 @@ namespace NorskaLib.UI
 
             #region Masks initialization
 
-            maskImages = new Dictionary<MaskType, Image>()
+            maskImages = new ()
             {
-                { MaskType.Full,  children[KeyWords.MaskFull].gameObject.AddComponent<Image>() },
-                { MaskType.Scene,  children[KeyWords.MaskScene].gameObject.AddComponent<Image>() }
+                { MaskType.Full,    children[KeyWords.MaskFull].gameObject.AddComponent<Image>() },
+                { MaskType.Scene,   children[KeyWords.MaskScene].gameObject.AddComponent<Image>() }
             };
-            //maskHandlers = new Dictionary<MaskType, DoTweenGraphicColorizer>()
-            //{
-            //    { MaskType.Full,  new DoTweenGraphicColorizer(maskImages[MaskType.Full])},
-            //    { MaskType.Scene,  new DoTweenGraphicColorizer(maskImages[MaskType.Scene])}
-            //};
+            maskTweens = new ()
+            {
+                { MaskType.Full,    null },
+                { MaskType.Scene,   null },
+            };
             foreach (var pair in maskImages)
             {
                 SetMaskAlpha(pair.Key, 0);
@@ -141,9 +142,9 @@ namespace NorskaLib.UI
         void OnDestroy()
         {
             // Masks deinitialization
-            //if (maskHandlers != null)
-            //    foreach (var h in maskHandlers)
-            //        h.Value?.Stop();
+            if (maskTweens != null)
+                foreach (var pair in maskTweens)
+                    pair.Value?.Kill();
 
             // Screen deinitialization
             UI.Events.onWindowOrderChanged -= OnWindowOrderChanged;
@@ -276,18 +277,22 @@ namespace NorskaLib.UI
 
         public void SetMaskAlpha(MaskType maskType, float alpha, float duration = 0)
         {
-            //if (duration > 0)
-            //    maskHandlers[maskType].Transit(alpha, duration);
-            //else
-            //    maskHandlers[maskType].SetAlpha(alpha);
+            SetMaskColor(maskType, maskImages[maskType].color.WithA(alpha), duration);
         }
 
         public void SetMaskColor(MaskType maskType, Color color, float duration = 0)
         {
-            //if (duration > 0)
-            //    maskHandlers[maskType].Transit(color, duration);
-            //else
-            //    maskHandlers[maskType].SetColor(color);
+            if (duration > 0)
+            {
+                maskTweens[maskType]?.Kill();
+                maskTweens[maskType] = maskImages[maskType]
+                    .DOColor(color, duration)
+                    .Play();
+            }
+            else
+            {
+                maskImages[maskType].color = color;
+            }
         }
 
         #endregion
