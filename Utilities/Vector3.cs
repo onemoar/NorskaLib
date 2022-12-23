@@ -11,6 +11,11 @@ namespace NorskaLib.Utilities
             return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
         }
 
+        public static bool Approximately(Vector3 a, Vector3 b)
+        {
+            return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z);
+        }
+
         public static Vector3 Uniform(float value)
         {
             return new Vector3(value, value, value);

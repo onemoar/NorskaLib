@@ -30,7 +30,7 @@ namespace NorskaLib.Utilities
             }
         }
 
-        public event Action<C> onChanged;
+        public Action<C> onChanged;
 
         public ReactiveReference()
         {
@@ -69,7 +69,7 @@ namespace NorskaLib.Utilities
             }
         }
 
-        public event Action<V> onChanged;
+        public Action<V> onChanged;
 
         public ReactiveValue()
         {
