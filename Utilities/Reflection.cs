@@ -11,14 +11,16 @@ namespace NorskaLib.Utilities
     {
         public static IEnumerable<Type> GetSubclasses<T>(bool includeAbstract) where T : class
         {
-            return Assembly.GetAssembly(typeof(T)).GetTypes()
-                .Where(t => t.IsClass && (includeAbstract && t.IsAbstract) && t.IsSubclassOf(typeof(T)));
+            var type = typeof(T);
+            return Assembly.GetAssembly(type).GetTypes()
+                .Where(t => t.IsClass && (includeAbstract || !t.IsAbstract) && t.IsSubclassOf(type));
         }
 
         public static IEnumerable<Type> GetAssignables<T>(Assembly assembly = null)
         {
-            return (assembly ?? Assembly.GetAssembly(typeof(T))).GetTypes()
-                .Where(t => t != typeof(T) && typeof(T).IsAssignableFrom(t));
+            var type = typeof(T);
+            return (assembly ?? Assembly.GetAssembly(type)).GetTypes()
+                .Where(t => t != type && type.IsAssignableFrom(t));
         }
     }
 }
