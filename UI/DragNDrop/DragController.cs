@@ -111,7 +111,7 @@ public class DragController : MonoBehaviour
 
         #region Updating target
 
-        var pointerTargetObj = NorskaLib.UI.Utils.GetObject(pointerPosition);
+        var pointerTargetObj = NorskaLib.UI.UIUtils.GetObject(pointerPosition);
         if (pointerTargetObj == null || !pointerTargetObj.TryGetComponent<IDragTarget>(out var newTarget))
         {
             if (DragTarget == null)

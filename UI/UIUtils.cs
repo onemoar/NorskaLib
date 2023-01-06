@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace NorskaLib.UI
 {
-    public struct Utils
+    public struct UIUtils
     {
         [System.Serializable]
         public struct Anchors
@@ -109,15 +109,23 @@ namespace NorskaLib.UI
             return mask;
         }
 
-        public static Vector2 WorldToRectPosition(Camera camera, RectTransform renderedTextureRect, Vector3 worldPosition)
+        public static Vector2 WorldToRectPosition(Camera camera, RectTransform rectTtansform, Vector3 worldPosition)
         {
             var cameraSize = new Vector2(camera.pixelWidth, camera.pixelHeight);
             var cameraPosition = (Vector2)camera.WorldToScreenPoint(worldPosition);
             var normalizedPosition = cameraPosition / cameraSize;
 
-            var rectSize = renderedTextureRect.rect.size;
+            var rectSize = rectTtansform.rect.size;
 
             return normalizedPosition * rectSize;
+        }
+        public static Vector2 WorldToScreenPosition(Camera camera, Vector3 worldPosition)
+        {
+            var cameraSize = new Vector2Int(camera.pixelWidth, camera.pixelHeight);
+            var cameraPosition = (Vector2)camera.WorldToScreenPoint(worldPosition);
+            var normalizedPosition = cameraPosition / cameraSize;
+
+            return cameraSize * normalizedPosition;
         }
         public static Vector2 WorldToScreenPosition(Camera camera, RectTransform renderedTextureRect, Vector3 worldPosition)
         {
@@ -129,6 +137,7 @@ namespace NorskaLib.UI
 
             return screenRect.min + normalizedPosition * screenRect.size;
         }
+        
         public static Rect WorldToScreenRect(Camera camera, RectTransform renderedTextureRect, Vector3 worldPositionA, Vector3 worldPositionB)
         {
             var cameraSize = new Vector2(camera.pixelWidth, camera.pixelHeight);
