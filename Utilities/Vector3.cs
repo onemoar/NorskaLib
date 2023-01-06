@@ -21,4 +21,22 @@ namespace NorskaLib.Utilities
             return new Vector3(value, value, value);
         }
     }
+
+    public struct Vector2Utils
+    {
+        public static Vector2 ComponentMult(Vector2 a, Vector2 b)
+        {
+            return new Vector3(a.x * b.x, a.y * b.y);
+        }
+
+        public static bool Approximately(Vector2 a, Vector2 b)
+        {
+            return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y);
+        }
+
+        public static Vector2 Uniform(float value)
+        {
+            return new Vector2(value, value);
+        }
+    }
 }

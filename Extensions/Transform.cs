@@ -17,6 +17,7 @@ namespace NorskaLib.Extensions
             }
         }
 
+        [System.Obsolete("Use Transform.localScale = Vector3Utils.Uniform instead.")]
         public static void SetScale(this Transform instance, float scale)
         {
             instance.localScale = new Vector3(scale, scale, scale);

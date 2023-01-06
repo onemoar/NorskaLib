@@ -7,7 +7,7 @@ namespace NorskaLib.Utilities
     /// <summary>
     /// Contains device-independent pointer checks.
     /// </summary>
-    public struct Input
+    public struct InputUtils
     {
         public static bool PointerIsDown
         {

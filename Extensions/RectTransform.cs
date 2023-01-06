@@ -15,9 +15,7 @@ namespace NorskaLib.Extensions
             }
         }
 
-        /// <summary>
-        /// Shortcut for 'transform.localScale = new Vector3(scale,scale,scale)'.
-        /// </summary>
+        [System.Obsolete("Use Transform.localScale = Vector3Utils.Uniform instead.")]
         public static void SetScale(this RectTransform instance, float scale)
         {
             instance.localScale = new Vector3(scale, scale, scale);

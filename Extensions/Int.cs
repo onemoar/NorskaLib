@@ -1,3 +1,4 @@
+using NorskaLib.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -15,6 +16,11 @@ namespace NorskaLib.Extensions
             return value * value * value;
         }
 
+        public static bool IsBetween(this int value, int min, int max)
+        {
+            return value >= min && value <= max;
+        }
+
         public static bool IsBetween(this int value, int min, int max, bool exclusiveMin = false, bool exclusiveMax = false)
         {
             static bool CompareToMin(int value, int min, bool exclusive)
@@ -28,6 +34,35 @@ namespace NorskaLib.Extensions
             }
 
             return CompareToMin(value, min, exclusiveMin) && CompareToMax(value, max, exclusiveMax);
+        }
+
+        public static bool EqualsAny(this int value, int a, int b)
+        {
+            return value == a || value == b;
+        }
+
+        public static bool EqualsAny(this int value, int a, int b, int c)
+        {
+            return value == a || value == b || value == c;
+        }
+
+        public static bool EqualsAny(this int value, int a, int b, int c, int d)
+        {
+            return value == a || value == b || value == c || value == d;
+        }
+
+        public static bool EqualsAny(this int value, int a, int b, int c, int d, int e)
+        {
+            return value == a || value == b || value == c || value == d || value == e;
+        }
+
+        public static bool EqualsAny(this int value, IEnumerable<int> values)
+        {
+            foreach (var v in values)
+                if (value == v)
+                    return true;
+
+            return false;
         }
     }
 }

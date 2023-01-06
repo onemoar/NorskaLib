@@ -9,34 +9,6 @@ namespace NorskaLib.Extensions
     // Other types of components
     public static class ComponentExtensions
     {
-        public static void Mimic<T>(this T @this, T other) where T : Component
-        {
-            if (@this is Behaviour thisB)
-            {
-                var otherB = other as Behaviour;
-                thisB.enabled = otherB.enabled;
-            }
-
-            switch (@this)
-            {
-                case RectTransform thisRT:
-                    thisRT.Mimic(other as RectTransform);
-                    break;
-
-                case ContentSizeFitter thisCSF:
-                    thisCSF.Mimic(other as ContentSizeFitter);
-                    break;
-
-                case HorizontalOrVerticalLayoutGroup thisLG:
-                    thisLG.Mimic(other as HorizontalOrVerticalLayoutGroup);
-                    break;
-
-                default:
-                    throw new System.NotImplementedException();
-                    //break;
-            }
-        }
-
         public static void Mimic(this ContentSizeFitter @this, ContentSizeFitter other)
         {
             @this.horizontalFit   = other.horizontalFit;

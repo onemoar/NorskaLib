@@ -5,12 +5,12 @@ namespace NorskaLib.Utilities
 {
     public struct EnumUtils
     {
-        public static T[] GetValues<T>() where T : System.Enum
+        public static E[] GetValues<E>() where E : System.Enum
         {
-            var valuesArray = Enum.GetValues(typeof(T));
-            var enumArray = new T[valuesArray.Length];
+            var valuesArray = Enum.GetValues(typeof(E));
+            var enumArray = new E[valuesArray.Length];
             for (int i = 0; i < valuesArray.Length; i++)
-                enumArray[i] = (T)valuesArray.GetValue(i);
+                enumArray[i] = (E)valuesArray.GetValue(i);
 
             return enumArray;
         }
@@ -19,6 +19,14 @@ namespace NorskaLib.Utilities
         /// Is fast and non-alocating alernative to native Enum.HasFlag(Enum).
         /// </summary>
         public static bool HasFlag(int mask, int layer)
+        {
+            return (mask & layer) != 0;
+        }
+
+        /// <summary>
+        /// Is fast and non-alocating alernative to native Enum.HasFlag(Enum).
+        /// </summary>
+        public static bool HasFlag(byte mask, byte layer)
         {
             return (mask & layer) != 0;
         }

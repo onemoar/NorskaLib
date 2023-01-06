@@ -14,28 +14,22 @@ namespace NorskaLib.Extensions
         private readonly T a;
         private readonly T b;
 
-        private T[] items;
-
         public ValuePair(T a, T b)
         {
             this.a = a;
             this.b = b;
-
-            items = new T[]
-            {
-                a,
-                b
-            };
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return (items as IEnumerable<T>).GetEnumerator();
+            yield return a;
+            yield return b;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return items.GetEnumerator();
+            yield return a;
+            yield return b;
         }
 
         public T Other(T value)
