@@ -1,102 +1,103 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
-using Sirenix.OdinInspector;
 
-public class GizmosDrawer : MonoBehaviour
+namespace NorskaLib.Handies
 {
-    public enum Modes { OnSelected, Always }
-    public enum Shapes { Cube, Sphere, Custom }
-    public enum Styles { Solid, Wired }
-
-    public Shapes shape;
-    [ShowIf("@shape == Shapes.Sphere"), LabelText("Radius")]
-    public float sphereRadius = 1;
-    [ShowIf("@shape == Shapes.Cube"), LabelText("Size")]
-    public Vector3 cubeSize = Vector3.one;
-
-    [ShowIf("@shape == Shapes.Custom")]
-    public Mesh[] meshes;
-
-    [Space]
-
-    public Styles style;
-    public Color color = Color.blue;
-
-    [Space]
-
-    public Modes drawMode;
-    public Vector3 offset;
-
-    [Space]
-
-    public bool drawForward;
-
-    private void OnDrawGizmos()
+    public class GizmosDrawer : MonoBehaviour
     {
-        if (drawMode == Modes.Always)
-            Draw();
-    }
+        public enum Modes { OnSelected, Always }
+        public enum Shapes { Cube, Sphere, Custom }
+        public enum Styles { Solid, Wired }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (drawMode == Modes.OnSelected)
-            Draw();
-    }
+        public Shapes shape;
+        [ShowIf("@shape == Shapes.Sphere"), LabelText("Radius")]
+        public float sphereRadius = 1;
+        [ShowIf("@shape == Shapes.Cube"), LabelText("Size")]
+        public Vector3 cubeSize = Vector3.one;
 
-    void Draw()
-    {
-        Gizmos.color = color;
+        [ShowIf("@shape == Shapes.Custom")]
+        public Mesh[] meshes;
 
-        if (drawForward)
+        [Space]
+
+        public Styles style;
+        public Color color = Color.blue;
+
+        [Space]
+
+        public Modes drawMode;
+        public Vector3 offset;
+
+        [Space]
+
+        public bool drawForward;
+
+        private void OnDrawGizmos()
         {
-            Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+            if (drawMode == Modes.Always)
+                Draw();
         }
 
-        var position = transform.position + offset;
-        var rotation = transform.rotation;
-        switch (shape)
+        private void OnDrawGizmosSelected()
         {
-            case Shapes.Cube:
-                switch (style)
-                {
-                    default:
-                    case Styles.Solid:
-                        Gizmos.DrawCube(position, cubeSize);
-                        break;
-                    case Styles.Wired:
-                        Gizmos.DrawWireCube(position, cubeSize);
-                        break;
-                }
-                break;
-            case Shapes.Sphere:
-                switch (style)
-                {
-                    default:
-                    case Styles.Solid:
-                        Gizmos.DrawSphere(position, sphereRadius);
-                        break;
-                    case Styles.Wired:
-                        Gizmos.DrawWireSphere(position, sphereRadius);
-                        break;
-                }
-                break;
-
-            case Shapes.Custom:
-                switch (style)
-                {
-                    default:
-                    case Styles.Solid:
-                        foreach (var mesh in meshes)
-                            Gizmos.DrawMesh(mesh, position, rotation);
-                        break;
-                    case Styles.Wired:
-                        foreach (var mesh in meshes)
-                            Gizmos.DrawWireMesh(
-                                mesh, position, rotation);
-                        break;
-                }
-                break;
+            if (drawMode == Modes.OnSelected)
+                Draw();
         }
-    }
+
+        void Draw()
+        {
+            Gizmos.color = color;
+
+            if (drawForward)
+            {
+                Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+            }
+
+            var position = transform.position + offset;
+            var rotation = transform.rotation;
+            switch (shape)
+            {
+                case Shapes.Cube:
+                    switch (style)
+                    {
+                        default:
+                        case Styles.Solid:
+                            Gizmos.DrawCube(position, cubeSize);
+                            break;
+                        case Styles.Wired:
+                            Gizmos.DrawWireCube(position, cubeSize);
+                            break;
+                    }
+                    break;
+                case Shapes.Sphere:
+                    switch (style)
+                    {
+                        default:
+                        case Styles.Solid:
+                            Gizmos.DrawSphere(position, sphereRadius);
+                            break;
+                        case Styles.Wired:
+                            Gizmos.DrawWireSphere(position, sphereRadius);
+                            break;
+                    }
+                    break;
+
+                case Shapes.Custom:
+                    switch (style)
+                    {
+                        default:
+                        case Styles.Solid:
+                            foreach (var mesh in meshes)
+                                Gizmos.DrawMesh(mesh, position, rotation);
+                            break;
+                        case Styles.Wired:
+                            foreach (var mesh in meshes)
+                                Gizmos.DrawWireMesh(
+                                    mesh, position, rotation);
+                            break;
+                    }
+                    break;
+            }
+        }
+    } 
 }
