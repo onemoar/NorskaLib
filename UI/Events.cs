@@ -11,13 +11,5 @@ namespace NorskaLib.UI
         /// Params: string - widget id
         /// </summary>
         public static Action<string> onWidgetClick;
-
-        /// <summary>
-        /// Params: screen - source object, int - new order
-        /// </summary>
-        public static Action<Window, int> onWindowOrderChanged;
-        public static Action<Window> onWindowShown;
-        public static Action<Window> onWindowHidden;
-        public static Action<Window> onWindowDestroyed;
     }
 }

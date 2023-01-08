@@ -10,7 +10,12 @@ namespace NorskaLib.UI
 	{
 		[SerializeField] Label label;
 		public Label Label => label;
+
+		[Tooltip("Optional parameter to format the whole label (for exampleyou can use '{0}%' to display perecentage)")]
 		public string textFormat;
+
+		[Tooltip("Optional parameter to format the value itself (e. g. '#0.0' for float)")]
+		public string valueFormat;
 
 		[Space]
 		[SerializeField] AnimationCurve curve;
@@ -29,9 +34,23 @@ namespace NorskaLib.UI
 
 		private void SetText(int value)
 		{
-			label.text = string.IsNullOrEmpty(textFormat)
+			var valueText = string.IsNullOrEmpty(valueFormat)
 				? value.ToString()
-				: string.Format(textFormat, value);
+				: value.ToString(valueFormat);
+
+			label.text = string.IsNullOrEmpty(textFormat)
+				? valueText
+				: string.Format(textFormat, valueText);
+		}
+		private void SetText(float value)
+        {
+			var valueText = string.IsNullOrEmpty(valueFormat)
+				? value.ToString()
+				: value.ToString(valueFormat);
+
+			label.text = string.IsNullOrEmpty(textFormat)
+				? valueText
+				: string.Format(textFormat, valueText);
 		}
 
 		/// <summary>
@@ -43,6 +62,17 @@ namespace NorskaLib.UI
 
 			SetText(value);
 		}
+		/// <summary>
+		/// Sets the label text using provided format instantly.
+		/// </summary>
+		public void DisplayImmediate(float value)
+		{
+			Break();
+
+			SetText(value);
+		}
+
+
 		/// <summary>
 		/// Sets the label text using provided format over given time.
 		/// </summary>

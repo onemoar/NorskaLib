@@ -2,6 +2,7 @@
 using NorskaLib.Extensions;
 using Sirenix.OdinInspector;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,43 +10,50 @@ using UnityEngine.UI;
 
 namespace NorskaLib.UI
 {
-    public class WindowsManager : MonoBehaviour
+    public abstract class WindowsManager : MonoBehaviour
     {
+        private struct KeyWords
+        {
+            public const string Windows     = "Windows";
+
+            public const string MaskFull    = "MaskFull";
+            public const string MaskScene   = "MaskScene";
+        }
+
         [SerializeField] Canvas canvas;
 
         #region Scale properties
 
         [SerializeField] CanvasScaler canvasScaler;
 
-        [DisableInPlayMode][Tooltip("Смещение указателя, чтобы его не закрывал палец")]
-        [SerializeField] Vector2 pointerDragOffset = new Vector2(22, 22);
+        // TO DO: 
+        //[DisableInPlayMode][Tooltip("May be useful in mobile games, to specify ")]
+        //[SerializeField] Vector2 pointerFingerOffset = new Vector2(22, 22);
+        //public Vector2 PointerFingerOffset => pointerFingerOffset * CurrentScale;
 
-        public Vector2 ScreenResolution
-            => new Vector2(UnityEngine.Screen.width, UnityEngine.Screen.height);
+        public Vector2 CurrentScreenResolution
+            => new Vector2(Screen.width, Screen.height);
 
-        public float ScreenAspect
-            => ScreenResolution.x / ScreenResolution.y;
+        public float ReferenceScreenAspect
+            => canvasScaler.referenceResolution.x / canvasScaler.referenceResolution.y;
 
-        public Vector2 ReferenceResolution
-            => canvasScaler.referenceResolution;
+        public float CurrentScreenAspect
+            => CurrentScreenResolution.x / CurrentScreenResolution.y;
 
-        public float ReferenceAspect
-            => ReferenceResolution.x / ReferenceResolution.y;
-
+        /// <summary>
+        /// The factor of current screen resolution to reference one.
+        /// </summary>
         public Vector2 CurrentScale
-            => ScreenResolution / ReferenceResolution;
+            => CurrentScreenResolution / canvasScaler.referenceResolution;
 
-        public Vector2 PointerOffset
-            => pointerDragOffset * CurrentScale;
 
         #endregion
 
         #region Masks properties
 
-        // Масками называются изображения (Image) на полотне интерфейса (Canvas)
-        // которые полностью заполняют экран, закрывая только пространство сцены
-        // (если указан MaskType.Scene) или все вместе с GUI (если указан MaskType.Full) 
-
+        /// <summary>
+        /// Masks are images that covers whole screen.
+        /// </summary>
         public enum MaskType
         {
             Full,
@@ -59,23 +67,31 @@ namespace NorskaLib.UI
 
         #region Windows properties
 
-        private struct KeyWords
-        {
-            public const string Windows     = "Windows";
-
-            public const string MaskFull    = "MaskFull";
-            public const string MaskScene   = "MaskScene";
-        }
-
         private RectTransform windowsContainer;
-
-        public const string WindowsFolder = "Windows";
         private Dictionary<System.Type, Window> windows;
-        private Dictionary<string, Window> windowsPrefabs;
+
+        /// <summary>
+        /// Called ones per window lifetime, AFTER it has been instantiated.
+        /// </summary>
+        public Action<Window> onWindowCreated;
+        /// <summary>
+        /// Invoked each time during ShowWindow() method call, AFTER window becomes active 
+        /// (and BEFORE animation starts, if the window has a WindowAnimator component).
+        /// </summary>
+        public Action<Window> onWindowShows;
+        /// <summary>
+        /// Invoked each time during HideWindow() method call, BEFORE window becomes inactive 
+        /// (and BEFORE animation starts, if the window has a WindowAnimator component).
+        /// </summary>
+        public Action<Window> onWindowHides;
+        /// <summary>
+        /// Called ones per window lifetime, BEFORE instance destroyed.
+        /// </summary>
+        public Action<Window> onWindowDestroyed;
 
         #endregion
 
-        void Awake()
+        protected virtual void Awake()
         {
             #region Common initialization
 
@@ -132,45 +148,38 @@ namespace NorskaLib.UI
 
             windowsContainer    = children[KeyWords.Windows];
             windows             = new();
-            windowsPrefabs      = new();
-
-            UI.Events.onWindowOrderChanged += OnWindowOrderChanged;
 
             #endregion
         }
 
-        void OnDestroy()
+        protected virtual void Update()
+        {
+            if (wantUpdateOrder)
+            {
+                UpdateWindowsOrder();
+                wantUpdateOrder = false;
+            }
+        }
+
+        protected virtual void OnDestroy()
         {
             // Masks deinitialization
             if (maskTweens != null)
                 foreach (var pair in maskTweens)
                     pair.Value?.Kill();
-
-            // Screen deinitialization
-            UI.Events.onWindowOrderChanged -= OnWindowOrderChanged;
         }
 
         #region Windows 
 
-        public Window GetWindowPrefab(Type type, string prefabName = null)
+        protected abstract W GetWindowPrefab<W>() where W : Window;
+
+        public bool TryGetWindow<W>(out W window) where W : Window
         {
-            var filename = !string.IsNullOrEmpty(prefabName)
-                ? prefabName
-                : type.Name;
-
-            if (windowsPrefabs.TryGetValue(filename, out var prefab))
-                return prefab;
-
-            var path = $"{WindowsFolder}/{filename}";
-            prefab = Resources.Load(path, type) as Window;
-            if (prefab != null)
-                windowsPrefabs.Add(filename, prefab);
-            else
-                Debug.LogError($"Prefab for screen type '{type.Name}' named '{filename}' not found.");
-
-            return prefab;
+            var type = typeof(W);
+            var check = windows.TryGetValue(type, out var result);
+            window = result as W;
+            return check;
         }
-
         public W GetWindow<W>() where W : Window
         {
             var type = typeof(W);
@@ -181,24 +190,29 @@ namespace NorskaLib.UI
                 return null;
         }
 
-        public W ShowWindow<W>(ShowWindowMode mode = ShowWindowMode.Additive, int order = 0, bool animated = false, string prefabName = null) where W : Window
+        public W ShowWindow<W>(ShowWindowMode mode = ShowWindowMode.Additive, int order = -1, bool animated = false) where W : Window
         {
             var type = typeof(W);
 
             if (!windows.TryGetValue(type, out var window) || window == null)
             {
-                var prefab = GetWindowPrefab(type, prefabName);
+                var prefab = GetWindowPrefab<W>();
                 window = Instantiate(prefab, windowsContainer);
 
+                #region Editor
+#if UNITY_EDITOR
+                window.name = $"{type.Name}";
+#endif
+                #endregion
+
+                window.Order.onChanged += OnWindowOrderChanged;
                 windows.Add(type, window);
+
+                onWindowCreated?.Invoke(window);
             }
 
             switch (mode)
             {
-                default:
-                case ShowWindowMode.Additive:
-                    break;
-
                 case ShowWindowMode.Single:
                     foreach (var s in windows)
                         if (s.Value != window)
@@ -207,63 +221,125 @@ namespace NorskaLib.UI
 
                 case ShowWindowMode.SoloInLayer:
                     foreach (var s in windows)
-                        if (s.Value != window && s.Value.Order == order)
+                        if (s.Value != window && s.Value.Order.Value == order)
                             HideWindow(s.Value);
+                    break;
+
+                default:
+                case ShowWindowMode.Additive:
                     break;
             }
 
-            window.Order = order;
-            window.Show(animated);
+            window.Order.Value = order == -1
+                ? window.DefaultOrder
+                : order;
 
-            UpdateWindowsOrder();
+            window.gameObject.SetActive(true);
+            onWindowShows?.Invoke(window);
+
+            if (animated && window.TryGetComponent<WindowAnimator>(out var animator))
+                animator.AnimateShow();
 
             return window as W;
         }
-        public Window ShowWindow(Window screen, bool animated = false)
+        public void ShowWindow(Window window, bool animated = false)
         {
-            screen.Show(animated);
+            if (!windows.ContainsValue(window) || window.gameObject.activeSelf)
+                return;
 
-            return screen;
+            window.gameObject.SetActive(true);
+            onWindowShows?.Invoke(window);
+
+            if (animated && window.TryGetComponent<WindowAnimator>(out var animator))
+                animator.AnimateShow();
         }
 
         public void HideWindow<W>(bool animated = false, bool destroy = false) where W : Window
         {
-            var type = typeof(W);
-
-            if (!windows.TryGetValue(type, out var window))
+            if (!windows.TryGetValue(typeof(W), out var window) || !window.gameObject.activeSelf)
                 return;
 
-            if (destroy)
-                windows.Remove(type);
-            window.Hide(animated, destroy);
+            if (animated && window.TryGetComponent<WindowAnimator>(out var animator))
+            {
+                animator.AnimateHide();
+                if (destroy)
+                    StartCoroutine(DestroyWindowRoutine(window, animator));
+                else
+                    StartCoroutine(HideWindowRoutine(window, animator));
+            }
+            else
+            {
+                if (destroy)
+                    DestroyWindow(window);
+                else
+                    HideWindow(window);
+            }
         }
         public void HideWindow(Window window, bool animated = false, bool destroy = false)
         {
-            var type = window.GetType();
-
-            if (destroy)
-                windows.Remove(type);
-            window.Hide(animated, destroy);
-        }
-        public void HideAll(bool animated = false, bool destroy = false)
-        {
-            foreach (var pair in windows)
-                HideWindow(pair.Value, animated, destroy);
-        }
-
-        private void OnWindowOrderChanged(Window source, int order)
-        {
-            if (!windows.ContainsValue(source))
-                return;
-
-            UpdateWindowsOrder();
+            if (animated && window.TryGetComponent<WindowAnimator>(out var animator))
+            {
+                animator.AnimateHide();
+                if (destroy)
+                    StartCoroutine(DestroyWindowRoutine(window, animator));
+                else
+                    StartCoroutine(HideWindowRoutine(window, animator));
+            }
+            else
+            {
+                if (destroy)
+                    DestroyWindow(window);
+                else
+                    HideWindow(window);
+            }
         }
 
         public void UpdateWindowsOrder()
         {
-            var windowsSorted = windows.Values.OrderBy(s => s.Order).ToArray();
-            for (int i = 0; i < windowsSorted.Length; i++)
-                windowsSorted[i].Rect.SetSiblingIndex(i);
+            var windowsSorted = windows.Values.OrderBy(s => s.Order);
+
+            var index = 0;
+            foreach (var window in windowsSorted)
+            {
+                window.transform.SetSiblingIndex(index);
+                index++;
+            }
+        }
+        
+        private IEnumerator HideWindowRoutine(Window window, WindowAnimator animator)
+        {
+            while (animator.IsAnimatingHide)
+                yield return null;
+
+            HideWindow(window);
+        }
+        private void HideWindow(Window window)
+        {
+            window.gameObject.SetActive(false);
+        }
+
+        private IEnumerator DestroyWindowRoutine(Window window, WindowAnimator animator)
+        {
+            while(animator.IsAnimatingHide)
+                yield return null;
+
+            DestroyWindow(window);
+        }
+        private void DestroyWindow(Window window)
+        {
+            var type = window.GetType();
+
+            window.Order.onChanged -= OnWindowOrderChanged;
+            windows.Remove(type);
+
+            onWindowDestroyed?.Invoke(window);
+            Destroy(window.gameObject);
+        }
+
+        private bool wantUpdateOrder;
+        void OnWindowOrderChanged(int order)
+        {
+            wantUpdateOrder |= true;
         }
 
         #endregion

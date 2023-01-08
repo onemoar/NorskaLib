@@ -82,7 +82,7 @@ namespace NorskaLib.UI
 
         private void UpdateWidgets()
         {
-            var screenRect = Rect.rect;
+            var screenRect = transform.rect;
             var compassPivot = GetCompassPivot();
 
             foreach (var entry in Entry.Instances)
