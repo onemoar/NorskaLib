@@ -296,7 +296,7 @@ namespace NorskaLib.UI
 
         public void UpdateWindowsOrder()
         {
-            var windowsSorted = windows.Values.OrderBy(s => s.Order);
+            var windowsSorted = windows.Values.OrderBy(s => s.Order.Value);
 
             var index = 0;
             foreach (var window in windowsSorted)
