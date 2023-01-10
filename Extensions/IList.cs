@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,11 @@ namespace NorskaLib.Extensions
 {
     public static class IListExtensions
     {
+        public static bool IndexIsValid(this IList list, int index)
+        {
+            return index >= 0 && index <= list.Count - 1;
+        }
+
         public static void Shuffle<T>(this IList<T> instance)
         {
             int n = instance.Count;
