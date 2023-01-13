@@ -18,19 +18,26 @@ namespace NorskaLib.Utilities
 
             set
             {
-                if (this.value != value)
-                {
-                    this.value = value;
-                    onChanged?.Invoke(value);
-                }
+                if (this.value == value)
+                    return;
+
+                var oldValue = this.value;
+                this.value = value;
+                if (oldValue != null || value == null)
+                    onUnassigned?.Invoke();
                 else
-                {
-                    this.value = value;
-                }
+                    onAssigned?.Invoke(value);
             }
         }
 
-        public Action<C> onChanged;
+        /// <summary>
+        /// Invoked when Value is changed to not null object reference.
+        /// </summary>
+        public Action<C> onAssigned;
+        /// <summary>
+        /// Invoked when Value is changed to null.
+        /// </summary>
+        public Action onUnassigned;
 
         public ReactiveReference()
         {
@@ -57,15 +64,11 @@ namespace NorskaLib.Utilities
 
             set
             {
-                if (!EqualityComparer<V>.Default.Equals(this.value, value))
-                {
-                    this.value = value;
-                    onChanged?.Invoke(value);
-                }
-                else
-                {
-                    this.value = value;
-                }
+                if (EqualityComparer<V>.Default.Equals(this.value, value))
+                    return;
+
+                this.value = value;
+                onChanged?.Invoke(value);
             }
         }
 
