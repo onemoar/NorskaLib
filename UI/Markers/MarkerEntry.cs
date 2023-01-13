@@ -23,6 +23,9 @@ namespace NorskaLib.UI
             }
         }
 
+        public static event Action<MarkerEntry> onInstanceRegistred;
+        public static event Action<MarkerEntry> onInstanceUnregistred;
+
         #endregion
 
         /// <summary>
@@ -42,11 +45,13 @@ namespace NorskaLib.UI
         protected virtual void OnEnable()
         {
             Instances.Add(this);
+            onInstanceRegistred?.Invoke(this);
         }
 
         protected virtual void OnDisable()
         {
             Instances.Remove(this);
+            onInstanceUnregistred?.Invoke(this);
         }
 
         #endregion

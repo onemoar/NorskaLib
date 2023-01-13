@@ -57,13 +57,18 @@ namespace NorskaLib.UI
 
         protected virtual void Start()
         {
-            widgets    = new (100);
+            widgets             = new (100);
             sortDatas           = new (100);
 
             Camera = ResolveCamera();
             CameraTransform = Camera.transform;
 
-            //InitializeCompas();
+            Entry.onInstanceUnregistred += OnEntryUnregistred;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            Entry.onInstanceUnregistred -= OnEntryUnregistred;
         }
 
         protected virtual void LateUpdate()
@@ -75,6 +80,16 @@ namespace NorskaLib.UI
 
         private Dictionary<Entry, Widget> widgets;
         private List<SortData> sortDatas;
+
+        private void OnEntryUnregistred(Entry entry)
+        {
+            if (!widgets.TryGetValue(entry, out Widget widget) || widget == null)
+                return;
+
+            widgets.Remove(entry);
+            widget.Unbind();
+            RemoveWidgetInstance(widget);
+        }
 
         protected abstract Widget GetWidgetInstance(Entry entry);
 
