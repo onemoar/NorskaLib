@@ -24,9 +24,15 @@ namespace NorskaLib.Utilities
                 var oldValue = this.value;
                 this.value = value;
                 if (oldValue != null || value == null)
+                {
+                    IsAssigned = false;
                     onUnassigned?.Invoke();
+                }
                 else
+                {
+                    IsAssigned = true;
                     onAssigned?.Invoke(value);
+                }
             }
         }
 
@@ -39,14 +45,21 @@ namespace NorskaLib.Utilities
         /// </summary>
         public Action onUnassigned;
 
+        /// <summary>
+        /// Same as "Value != null", yet it is cached.
+        /// </summary>
+        public bool IsAssigned { get; private set;}
+
         public ReactiveReference()
         {
             value = null;
+            IsAssigned = false;
         }
 
         public ReactiveReference(C initial)
         {
             value = initial;
+            IsAssigned = initial != null;
         }
     }
 
