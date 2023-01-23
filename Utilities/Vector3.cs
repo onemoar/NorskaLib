@@ -11,32 +11,53 @@ namespace NorskaLib.Utilities
             return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
         }
 
+        public static Vector3 ComponentMult(Vector3 a, Vector3Int b)
+        {
+            return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
+        }
+
+        public static Vector3 ComponentMult(Vector3Int a, Vector3 b)
+        {
+            return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
+        }
+
+        public static Vector3Int ComponentMult(Vector3Int a, Vector3Int b)
+        {
+            return new Vector3Int(a.x * b.x, a.y * b.y, a.z * b.z);
+        }
+
+        public static Vector3 ComponentDiv(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.x / b.x, a.y / b.y, a.z / b.z);
+        }
+
         public static bool Approximately(Vector3 a, Vector3 b)
         {
             return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z);
+        }
+
+        public static Vector3 Snap(Vector3 position, Vector3 cellSize)
+        {
+            var cellCount = RoundToInt(ComponentDiv(position, cellSize));
+            return ComponentMult(cellCount, cellSize);
+        }
+
+        public static Vector3 Snap(Vector3 position, float cellSizeUnitform = 1)
+        {
+            return Snap(position, Uniform(cellSizeUnitform));
         }
 
         public static Vector3 Uniform(float value)
         {
             return new Vector3(value, value, value);
         }
-    }
 
-    public struct Vector2Utils
-    {
-        public static Vector2 ComponentMult(Vector2 a, Vector2 b)
+        public static Vector3Int RoundToInt(Vector3 value)
         {
-            return new Vector3(a.x * b.x, a.y * b.y);
-        }
-
-        public static bool Approximately(Vector2 a, Vector2 b)
-        {
-            return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y);
-        }
-
-        public static Vector2 Uniform(float value)
-        {
-            return new Vector2(value, value);
+            return new Vector3Int(
+                Mathf.RoundToInt(value.x),
+                Mathf.RoundToInt(value.y),
+                Mathf.RoundToInt(value.z));
         }
     }
 }

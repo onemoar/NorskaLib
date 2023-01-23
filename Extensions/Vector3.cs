@@ -6,9 +6,9 @@ namespace NorskaLib.Extensions
 {
     public static class Vector3Extensions
     {
-        public static Vector3 ComponentMult(this Vector3 a, Vector3 b)
+        public static bool ApproximatelyZero(this Vector3 vector)
         {
-            return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
+            return vector.x.ApproximatelyZero() && vector.y.ApproximatelyZero() && vector.z.ApproximatelyZero();
         }
 
         public static Vector3 WithX(this Vector3 vector, float x)

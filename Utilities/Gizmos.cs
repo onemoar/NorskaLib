@@ -7,10 +7,15 @@ namespace NorskaLib.Utilities
     {
         public static void DrawCrossPoint(Vector3 position, Vector3 size)
         {
-            var halfsize = size / 2;
+            var halfsize = size * 0.5f;
             Gizmos.DrawLine(position + Vector3.up * halfsize.y, position + Vector3.down * halfsize.y);
             Gizmos.DrawLine(position + Vector3.left * halfsize.x, position + Vector3.right * halfsize.x);
             Gizmos.DrawLine(position + Vector3.forward * halfsize.z, position + Vector3.back * halfsize.z);
+        }
+
+        public static void DrawCrossPoint(Vector3 position)
+        {
+            DrawCrossPoint(position, Vector3.one);
         }
 
         public static void DrawPolyline(Vector3[] vertices, bool loop)

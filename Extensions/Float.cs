@@ -41,6 +41,11 @@ namespace NorskaLib.Extensions
             return Mathf.Approximately(value, other);
         }
 
+        public static bool ApproximatelyZero(this float value)
+        {
+            return Mathf.Approximately(value, 0);
+        }
+
         public static bool ApproximatelyAny(this float value, float a, float b)
         {
             return value.Approximately(a) || value.Approximately(b);

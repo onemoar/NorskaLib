@@ -36,6 +36,12 @@ public class LocalStorageEditorWindow : EditorWindow
         public const string State = "State";
     }
 
+    [MenuItem("Window/Norska/Local Storage/Open Application.persistenDataPath")]
+    public static void OpenFolder()
+    {
+        System.Diagnostics.Process.Start(Application.persistentDataPath);
+    }
+
     [MenuItem("Window/Norska/Local Storage/View State")]
     public static new void Show()
     {
