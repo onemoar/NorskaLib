@@ -13,9 +13,10 @@ namespace NorskaLib.DependencyInjection
 
         public static DependencyContainer Instance { get; private set; }
 
-        public DependencyContainer()
+        public static DependencyContainer Initialize()
         {
-            Instance = this;
+            Instance = new DependencyContainer();
+            return Instance;
         }
 
         #endregion
