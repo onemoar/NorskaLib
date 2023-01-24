@@ -8,6 +8,24 @@ namespace NorskaLib.Utilities
 { 
     public struct MathUtils
     {
+        public static float Min(float a, float b, float c)
+        {
+            return Mathf.Min(Mathf.Min(a, b), c);
+        }
+        public static int Min(int a, int b, int c)
+        {
+            return Mathf.Min(Mathf.Min(a, b), c);
+        }
+
+        public static float Max(float a, float b, float c)
+        {
+            return Mathf.Max(Mathf.Max(a, b), c);
+        }
+        public static int Max(int a, int b, int c)
+        {
+            return Mathf.Max(Mathf.Max(a, b), c);
+        }
+
         public static List<int> GetRange(int min, int max)
         {
             var list = new List<int>(max - min + 1);
