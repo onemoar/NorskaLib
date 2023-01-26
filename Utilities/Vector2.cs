@@ -19,12 +19,14 @@ namespace NorskaLib.Utilities
             return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y);
         }
 
+        [System.Obsolete("Use extension")]
         public static Vector2 Snap(Vector2 position, Vector2 cellSize)
         {
             var cellCount = RoundToInt(ComponentDiv(position, cellSize));
             return ComponentMult(cellCount, cellSize);
         }
 
+        [System.Obsolete("Use extension")]
         public static Vector2 Snap(Vector2 position, float cellSizeUnitform = 1)
         {
             return Snap(position, Uniform(cellSizeUnitform));

@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using NorskaLib.Utilities;
 using UnityEngine;
 
 namespace NorskaLib.Extensions
@@ -41,6 +40,17 @@ namespace NorskaLib.Extensions
         public static Vector2 ToXZ(this Vector3 vector)
         {
             return new Vector2(vector.x, vector.z);
+        }
+
+        // TO DO: add optional origin offset parameter
+        public static Vector3 Snap(this Vector3 position, Vector3 cellSize)
+        {
+            var cellCount = Vector3Utils.RoundToInt(Vector3Utils.ComponentDiv(position, cellSize));
+            return Vector3Utils.ComponentMult(cellCount, cellSize);
+        }
+        public static Vector3 Snap(this Vector3 position, float cellSizeUnitform = 1)
+        {
+            return Snap(position, Vector3Utils.Uniform(cellSizeUnitform));
         }
     }
 }

@@ -103,5 +103,11 @@ namespace NorskaLib.Extensions
 
             return false;
         }
+
+        public static float Snap(this float value, float cellSize)
+        {
+            var cellCount = Mathf.RoundToInt(value / cellSize);
+            return cellCount * cellSize;
+        }
     }
 }
