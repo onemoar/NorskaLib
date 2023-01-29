@@ -46,6 +46,15 @@ del "Assets\Plugins\NorskaLibSymlinks\Localization" /f /q
 mklink /d "Assets\Plugins\NorskaLibSymlinks\Localization" "..\..\..\NorskaLib\Localization"
 
 
+if exist "Assets\Plugins\NorskaLibSymlinks\Pools\" (
+rmdir "Assets\Plugins\NorskaLibSymlinks\Pools" /s /q
+)
+if exist "Assets\Plugins\NorskaLibSymlinks\Pools" (
+del "Assets\Plugins\NorskaLibSymlinks\Pools" /f /q
+)
+mklink /d "Assets\Plugins\NorskaLibSymlinks\Pools" "..\..\..\NorskaLib\Pools"
+
+
 if exist "Assets\Plugins\NorskaLibSymlinks\Storage\" (
 rmdir "Assets\Plugins\NorskaLibSymlinks\Storage" /s /q
 )
