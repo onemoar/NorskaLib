@@ -12,9 +12,6 @@ namespace NorskaLib.Pools
             "it will be destroyed, rather than disabled.")]
         public int capacity = 8;
 
-        [Tooltip("Original instance (prefab)")]
-        public C original;
-
         [Space]
 
         [Tooltip("Transform that serves as a parent for deallocated instances")]
@@ -28,11 +25,13 @@ namespace NorskaLib.Pools
 
         private Stack<C> stack;
 
+        protected abstract C Instantiate();
+
         public C Allocate()
         {
             var instance = stack.Count > 0
                 ? stack.Pop()
-                : Instantiate(original);
+                : Instantiate();
 
             if (disablePooled)
                 instance.gameObject.SetActive(true);
