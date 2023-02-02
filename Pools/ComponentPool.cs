@@ -42,6 +42,23 @@ namespace NorskaLib.Pools
             return instance;
         }
 
+        public C Allocate(Transform parent, bool worldPositionStays = false)
+        {
+            var instance = Allocate();
+            instance.transform.SetParent(parent, worldPositionStays);
+
+            return instance;
+        }
+
+        public C Allocate(Vector3 position, Quaternion rotation)
+        {
+            var instance = Allocate();
+            instance.transform.position = position;
+            instance.transform.rotation = rotation;
+
+            return instance;
+        }
+
         public void Deallocate(C instance)
         {
             if (instance is IPoolable poolable)

@@ -35,14 +35,6 @@ namespace NorskaLib.UI
             lastMode = mode;
         }
 
-        /// <summary>
-        /// Is called each update frame for markers, which entries is in compas mode (are off screen).
-        /// Override it to implement custom compas-marker widget logic (for example, rotating an arrow towards quest target).
-        /// </summary>
-        /// <param name="angle"> Signed angle in degrees from MarkerOverlay.camera.forward to direction
-        /// from MarkerOverlay.CompasPivot.position towards entry.WorldPosition. </param>
-        public virtual void DisplayAngle(float angle) { }
-
         public virtual void Bind(MarkerEntry entry)
         {
             Entry = entry;
@@ -52,6 +44,22 @@ namespace NorskaLib.UI
         {
 
         }
+    }
+
+    public interface IDistanceDisplayerWidget
+    {
+        public void DisplayDistance(float distance);
+    }
+
+    public interface IAngleDisplayerWidget
+    {
+        /// <summary>
+        /// Is called each update frame for markers, which entries is in compas mode (are off screen).
+        /// Use it to implement custom compas-marker widget logic (for example, rotating an arrow towards quest target).
+        /// </summary>
+        /// <param name="angle"> Signed angle in degrees from MarkerOverlay.camera.forward to direction
+        /// from MarkerOverlay.CompasPivot.position towards entry.WorldPosition. </param>
+        public void DisplayAngle(float angle);
     }
 
     internal struct MarkerWidgetSortData : IEquatable<MarkerWidgetSortData>, IComparable<MarkerWidgetSortData>

@@ -135,6 +135,7 @@ namespace NorskaLib.UI
 
                 if (widget.lastMode != mode)
                     widget.SwitchMode(mode);
+
                 switch (mode)
                 {
                     case MarkerModes.World:
@@ -144,7 +145,8 @@ namespace NorskaLib.UI
 
                     case MarkerModes.Compass:
                         var angle = MathUtils.AbsoluteSignedAngleXZ(compassPivot.position, entry.PivotPosition);
-                        widget.DisplayAngle(angle);
+                        if (widget is IAngleDisplayerWidget angleDisplayer)
+                            angleDisplayer.DisplayAngle(angle);
 
                         var rectSize = screenRect.size - new Vector2(compassPadding.horizontal, compassPadding.vertical);
                         var rectCenter = new Vector2(compassPadding.left, compassPadding.top) + rectSize * 0.5f;
@@ -152,11 +154,14 @@ namespace NorskaLib.UI
                         break;
                 }
 
-                var direction = entry.PivotPosition - CameraTransform.position;
+                var distance = Vector3.Distance(entry.PivotPosition, compassPivot.position);
+                if (widget is IDistanceDisplayerWidget distanceDisplayer)
+                    distanceDisplayer.DisplayDistance(distance);
+
                 sortDatas.Add(new SortData()
                 {
                     widget = widget,
-                    distance = direction.sqrMagnitude
+                    distance = distance
                 });
             }
 
