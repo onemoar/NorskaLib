@@ -5,6 +5,14 @@ namespace NorskaLib.Utilities
 {
     public struct GizmosUtils
     {
+        public static void DrawForward(Transform transform, float scale = 1)
+        {
+            var from = transform.position;
+            var to = transform.position + transform.forward * scale;
+
+            Gizmos.DrawLine(from, to);
+        }
+
         public static void DrawCrossPoint(Vector3 position, Vector3 size)
         {
             var halfsize = size * 0.5f;

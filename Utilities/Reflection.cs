@@ -9,10 +9,13 @@ namespace NorskaLib.Utilities
 {
     public struct ReflectionUtils
     {
-        public static IEnumerable<Type> GetSubclasses<T>(bool includeAbstract) where T : class
+        public static IEnumerable<Type> GetSubclasses<T>(bool includeAbstract, Assembly assembly = null) where T : class
         {
             var type = typeof(T);
-            return Assembly.GetAssembly(type).GetTypes()
+            if (assembly is null)
+                assembly = Assembly.GetAssembly(type);
+
+            return assembly.GetTypes()
                 .Where(t => t.IsClass && (includeAbstract || !t.IsAbstract) && t.IsSubclassOf(type));
         }
 
