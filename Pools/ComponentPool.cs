@@ -5,6 +5,16 @@ using UnityEngine;
 
 namespace NorskaLib.Pools
 {
+    public abstract class GenericComponentPool<C> : ComponentPool<C> where C : Component
+    {
+        [SerializeField] C prefab;
+
+        protected override C Instantiate()
+        {
+            return Instantiate(prefab);
+        }
+    }
+
     public abstract class ComponentPool<C> : MonoBehaviour where C : Component
     {
         [Tooltip("Preffered amount of instances in the pool. " +

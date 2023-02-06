@@ -46,5 +46,18 @@ namespace NorskaLib.Utilities
             var vertices = MeshUtils.GetSectorVertices(origin, facing, span, radius, subdivision);
             DrawPolyline(vertices, true);
         }
+
+        public static void DrawQuadCurve(Vector3 start, Vector3 handle, Vector3 end, int subdivision = 2)
+        {
+            subdivision = Mathf.Clamp(subdivision, 2, subdivision);
+            var from = start;
+            for (int i = 1; i <= subdivision; i++)
+            {
+                var factor = i / subdivision;
+                var to = MathUtils.PositionOnQuadCurve(start, handle, from, factor);
+                Gizmos.DrawLine(from, to);
+                from = to;
+            }
+        }
     }
 }

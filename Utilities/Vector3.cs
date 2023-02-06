@@ -41,6 +41,12 @@ namespace NorskaLib.Utilities
             return new Vector3(value, value, value);
         }
 
+        /// <returns> A position in the middle between given positions. </returns>
+        public static Vector3 Center(Vector3 a, Vector3 b)
+        {
+            return (a + b) / 2;
+        }
+
         public static Vector3Int RoundToInt(Vector3 value)
         {
             return new Vector3Int(
