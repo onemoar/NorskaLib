@@ -6,6 +6,14 @@ using NorskaLib.Extensions;
 
 namespace NorskaLib.Utilities
 {
+    public interface IRandomizable
+    {
+        /// <summary>
+        /// NOTE: Must be a positive number!
+        /// </summary>
+        public float Weight { get; }
+    }
+
     public struct RandomUtils
     {
         /// <summary>
@@ -93,7 +101,7 @@ namespace NorskaLib.Utilities
 
             float lastMin = 0;
             float lastMax = 0;
-            int index = -1;
+
             for (int i = 0; i < weigths.Length; i++)
             {
                 if (i > 0)
@@ -101,10 +109,33 @@ namespace NorskaLib.Utilities
 
                 lastMax += weigths[i];
 
-                if (roll >= lastMin && roll < lastMax && !weigths[i].Approximately(0))
-                    index = i;
+                if (roll >= lastMin && roll < lastMax && !weigths[i].ApproximatelyZero())
+                    return i;
             }
-            return index;
+
+            return -1;
+        }
+
+        public static T Element<T>(IEnumerable<IRandomizable> collection) where T : class, IRandomizable
+        {
+            var W = 0f;
+            foreach (var randomizable in collection)
+                W += randomizable.Weight;
+
+            var roll = Random.Range(0, W);
+
+            var min = 0f;
+            foreach (var randomizable in collection)
+            {
+                var weight = randomizable.Weight;
+                var max = min + weight;
+                if (roll.IsBetween(min, max, false, true) && !weight.ApproximatelyZero())
+                    return randomizable as T;
+
+                min = max;
+            }
+
+            return null;
         }
 
         public struct Meta<T>
