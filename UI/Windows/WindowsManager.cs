@@ -315,6 +315,7 @@ namespace NorskaLib.UI
         }
         private void HideWindow(Window window)
         {
+            onWindowHides?.Invoke(window);
             window.gameObject.SetActive(false);
         }
 
@@ -332,6 +333,7 @@ namespace NorskaLib.UI
             window.Order.onChanged -= OnWindowOrderChanged;
             windows.Remove(type);
 
+            onWindowHides?.Invoke(window);
             onWindowDestroyed?.Invoke(window);
             Destroy(window.gameObject);
         }

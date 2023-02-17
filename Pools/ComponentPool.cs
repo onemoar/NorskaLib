@@ -39,6 +39,9 @@ namespace NorskaLib.Pools
 
         public C Allocate()
         {
+            if (stack is null)
+                stack = new Stack<C>(capacity);
+
             var instance = stack.Count > 0
                 ? stack.Pop()
                 : Instantiate();
@@ -71,6 +74,9 @@ namespace NorskaLib.Pools
 
         public void Deallocate(C instance)
         {
+            if (stack is null)
+                stack = new Stack<C>(capacity);
+
             if (instance is IPoolable poolable)
                 poolable.OnDeallocated();
 
@@ -92,7 +98,8 @@ namespace NorskaLib.Pools
 
         protected virtual void Awake()
         {
-            stack = new Stack<C>(capacity);
+            if (stack is null)
+                stack = new Stack<C>(capacity);
 
             var prewarmedTake = prewarmedInstances.Take(capacity);
 
