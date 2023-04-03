@@ -6,6 +6,7 @@ rm -r "./Assets/Plugins/NorskaLibSymlinks"
 mkdir "./Assets/Plugins/NorskaLibSymlinks"
 # BODY_START
 
+ln -s "../../../NorskaLib/CodeGen" "./Assets/Plugins/NorskaLib/CodeGen"
 ln -s "../../../NorskaLib/DependencyInjection" "./Assets/Plugins/NorskaLib/DependencyInjection"
 ln -s "../../../NorskaLib/Extensions" "./Assets/Plugins/NorskaLib/Extensions"
 ln -s "../../../NorskaLib/Handies" "./Assets/Plugins/NorskaLib/Handies"

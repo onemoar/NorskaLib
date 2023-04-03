@@ -10,6 +10,14 @@ mkdir "Assets\Plugins\NorskaLibSymlinks"
 
 rem BODY_START
 
+if exist "Assets\Plugins\NorskaLibSymlinks\CodeGen\" (
+rmdir "Assets\Plugins\NorskaLibSymlinks\CodeGen" /s /q
+)
+if exist "Assets\Plugins\NorskaLibSymlinks\CodeGen" (
+del "Assets\Plugins\NorskaLibSymlinks\CodeGen" /f /q
+)
+mklink /d "Assets\Plugins\NorskaLibSymlinks\CodeGen" "..\..\..\NorskaLib\CodeGen"
+
 if exist "Assets\Plugins\NorskaLibSymlinks\DependencyInjection\" (
 rmdir "Assets\Plugins\NorskaLibSymlinks\DependencyInjection" /s /q
 )
