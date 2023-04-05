@@ -82,6 +82,14 @@ namespace NorskaLib.Utilities
 
             return new Vector3(x, y, z);
         }
+        public static Vector3 Vector3(Bounds bounds)
+        {
+            var x = Random.Range(bounds.min.x, bounds.max.x);
+            var y = Random.Range(bounds.min.y, bounds.max.y);
+            var z = Random.Range(bounds.min.z, bounds.max.z);
+
+            return new Vector3(x, y, z);
+        }
 
         public static T Value<T>(IList<Meta<T>> metas)
         {

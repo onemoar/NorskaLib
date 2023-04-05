@@ -5,6 +5,11 @@ namespace NorskaLib.Extensions
 {
     public static class Vector2Extensions
     {
+        public static bool ApproximatelyZero(this Vector2 vector)
+        {
+            return vector.x.ApproximatelyZero() && vector.y.ApproximatelyZero();
+        }
+
         public static Vector2 ComponentMult(this Vector2 a, Vector2 b)
         {
             return a * b;
