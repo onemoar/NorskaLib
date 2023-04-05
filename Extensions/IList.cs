@@ -1,3 +1,4 @@
+using NorskaLib.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,16 @@ namespace NorskaLib.Extensions
         public static bool IndexIsValid(this IList list, int index)
         {
             return index >= 0 && index <= list.Count - 1;
+        }
+
+        public static List<int> GetIndexesList(this IList list)
+        {
+            return MathUtils.GetRangeList(0, list.Count - 1);
+        }
+
+        public static int[] GetIndexesArray(this IList list)
+        {
+            return MathUtils.GetRangeArray(0, list.Count - 1);
         }
 
         public static void Shuffle<T>(this IList<T> instance)

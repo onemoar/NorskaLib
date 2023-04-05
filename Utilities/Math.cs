@@ -26,7 +26,7 @@ namespace NorskaLib.Utilities
             return Mathf.Max(Mathf.Max(a, b), c);
         }
 
-        public static List<int> GetRange(int min, int max)
+        public static List<int> GetRangeList(int min, int max)
         {
             var list = new List<int>(max - min + 1);
             for (int i = min; i <= max; i++)
@@ -34,26 +34,37 @@ namespace NorskaLib.Utilities
 
             return list;
         }
-
-        public static int[] GetRange(int min, int max, int[] exeptions)
+        public static int[] GetRangeArray(int min, int max)
         {
-            var pool = new List<int>();
-            for (int i = min; i < max; i++)
-            {
-                var exeption = false;
-                for (int j = 0; j < exeptions.Length; j++)
-                    if (i == exeptions[j])
-                    {
-                        exeption = true;
-                        break;
-                    }
+            var array = new int[max - min + 1];
+            for (int i = 0; i < array.Length; i++)
+                array[i] = min + i;
 
-                if (!exeption)
-                    pool.Add(i);
-            }
-
-           return  pool.ToArray();
+            return array;
         }
+
+        // TO DO:
+        // Refactor allocations
+        //
+        //public static int[] GetRangeArray(int min, int max, int[] exeptions)
+        //{
+        //    var pool = new List<int>();
+        //    for (int i = min; i < max; i++)
+        //    {
+        //        var exeption = false;
+        //        for (int j = 0; j < exeptions.Length; j++)
+        //            if (i == exeptions[j])
+        //            {
+        //                exeption = true;
+        //                break;
+        //            }
+
+        //        if (!exeption)
+        //            pool.Add(i);
+        //    }
+
+        //   return  pool.ToArray();
+        //}
 
         public static float Radians(float degrees)
         {
