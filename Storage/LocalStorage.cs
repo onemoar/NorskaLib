@@ -9,6 +9,8 @@ namespace NorskaLib.Storage
 {
     public abstract class LocalStorage
     {
+        protected string SharedFilename { get; private set; }
+
         protected IStorageModule[] modulesShared;
         protected IStorageModule[] modulesSlot;
 
@@ -18,14 +20,18 @@ namespace NorskaLib.Storage
 
         public bool IsInitialized { get; private set; }
 
-        public void Initialize(IEnumerable<Type> allModulesTypes)
+        public void Initialize(IEnumerable<Type> allModulesTypes, string sharedFilename)
         {
-            void RegisterModules(ref IStorageModule[] collection, bool needSharedAttribute)
+            bool SharedPredicate(Type type)
+                => Attribute.IsDefined(type, typeof(SharedStorageModuleAttribute));
+
+            bool SlotPredicate(Type type)
+                => !Attribute.IsDefined(type, typeof(SharedStorageModuleAttribute));
+
+            void RegisterModules(ref IStorageModule[] collection, Func<Type, bool> predicate)
             {
                 var types = allModulesTypes
-                    .Where(mt => needSharedAttribute 
-                        ? Attribute.IsDefined(mt, typeof(SharedAttribute)) 
-                        : !Attribute.IsDefined(mt, typeof(SharedAttribute)))
+                    .Where(predicate)
                     .ToArray();
                 collection = new IStorageModule[types.Length];
                 for (int i = 0; i < collection.Length; i++)
@@ -38,17 +44,19 @@ namespace NorskaLib.Storage
                 }
             }
 
-            RegisterModules(ref modulesShared, true);
-            RegisterModules(ref modulesSlot, false);
+            SharedFilename = sharedFilename;
+
+            RegisterModules(ref modulesShared, SharedPredicate);
+            RegisterModules(ref modulesSlot, SlotPredicate);
 
             IsInitialized = true;
         }
 
-        public abstract void LoadShared(string name);
+        public abstract void LoadShared();
 
         public abstract void LoadSlot(string name);
 
-        public abstract void SaveShared(string name);
+        public abstract void SaveShared();
 
         public abstract void SaveSlot(string name);
 

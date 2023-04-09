@@ -64,5 +64,25 @@ namespace NorskaLib.Extensions
 
             return false;
         }
+
+        public static bool IsLessThen(this int value, int a, int b)
+        {
+            return value < a && value < b;
+        }
+
+        public static bool IsLessOrEqualThen(this int value, int a, int b)
+        {
+            return value < a && value < b;
+        }
+
+        public static bool IsGreaterThen(this int value, int a, int b)
+        {
+            return value > a && value > b;
+        }
+
+        public static bool IsGreaterOrEqualThen(this int value, int a, int b)
+        {
+            return value >= a && value >= b;
+        }
     }
 }

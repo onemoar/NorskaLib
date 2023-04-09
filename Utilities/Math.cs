@@ -5,7 +5,7 @@ using System.Globalization;
 using UnityEngine;
 
 namespace NorskaLib.Utilities
-{ 
+{
     public struct MathUtils
     {
         public static float Min(float a, float b, float c)
@@ -164,7 +164,7 @@ namespace NorskaLib.Utilities
         }
 
         /// <param name="rectSize"> </param>
-        /// <param name="angle"> SIgned angle from -180 to 180 degrees measured from Vector2.up (0, 1). </param>
+        /// <param name="angle"> Signed angle from -180 to 180 degrees measured from Vector2.up (0, 1). </param>
         /// <returns> Position on the rectangle border at given angle from its center. </returns>
         public static Vector2 PositionOnRectangle(Vector2 rectCenter, Vector2 rectSize, float angle)
         {
@@ -180,16 +180,10 @@ namespace NorskaLib.Utilities
                 return rectCenter + Vector2.down * halfsize.y;
             else
             {
-                //Debug.Log($"Searching point for rect (center {rectCenter}, size {rectSize}), angle '{angle}'...");
-
-                // top-right vertice
                 var tr = rectCenter + halfsize;
 
                 var alpha = AbsoluteSignedAngleXZ(tr - rectCenter);
                 var octanIndex = GetOctantIndex(angle, out var legAngle, alpha);
-                //Debug.Log($"-> alpha '{alpha}'...");
-                //Debug.Log($"-> octan index '{octanIndex}'...");
-
                 (var normalLength, var delta, var normal) = octanIndex.EqualsAny(1, 2, 5, 6)
                     ? (halfsize.x, Vector2.up, Vector2.right)
                     : (halfsize.y, Vector2.right, Vector2.up);
@@ -202,8 +196,6 @@ namespace NorskaLib.Utilities
 
                 var deltaLength = normalLength * Mathf.Tan(Radians(legAngle));
                 var result = rectCenter + normalSign * normalLength * normal + deltaSign * deltaLength * delta;
-
-                //Debug.Break();
                 return result;
             }
         }
@@ -235,20 +227,20 @@ namespace NorskaLib.Utilities
         }
 
         // https://ru.wikipedia.org/wiki/Кривая_Безье
-        public static Vector3 PositionOnQuadCurve(Vector3 startPos, Vector3 handlePos, Vector3 endPos, float t)
+        public static Vector3 PositionOnQuadCurve(Vector3 startPos, Vector3 arcPos, Vector3 endPos, float t)
         {
             var b = (1 - t) * (1 - t) * startPos
-                + 2 * t * (1 - t) * handlePos
+                + 2 * t * (1 - t) * arcPos
                 + t * t * endPos;
 
             return b;
         }
-        public static Vector3 PositionOnQuadCurveClamped(Vector3 startPos, Vector3 handlePos, Vector3 endPos, float t)
+        public static Vector3 PositionOnQuadCurveClamped(Vector3 startPos, Vector3 arcPos, Vector3 endPos, float t)
         {
             t = Mathf.Clamp01(t);
 
             var b = (1 - t) * (1 - t) * startPos
-                + 2 * t * (1 - t) * handlePos
+                + 2 * t * (1 - t) * arcPos
                 + t * t * endPos;
 
             return b;
@@ -258,18 +250,18 @@ namespace NorskaLib.Utilities
         /// Возвращает примерную длину квадратичной кривой Безье.
         /// </summary>
         /// <param name="startPos"></param>
-        /// <param name="handlePos"></param>
+        /// <param name="arcPos"></param>
         /// <param name="endPos"></param>
         /// <param name="divCount"> Кол-во отрезков, на которые разбивается кривая. </param>
         /// <returns></returns>
-        public static float QuadCurveLengthSlow(Vector3 startPos, Vector3 handlePos, Vector3 endPos, int divCount)
+        public static float QuadCurveLengthSlow(Vector3 startPos, Vector3 arcPos, Vector3 endPos, int divCount)
         {
             var length = 0f;
             var a = startPos;
             for (int i = 0; i < divCount; i++)
             {
                 var t = (i + 1) / (float)divCount;
-                var b = PositionOnQuadCurve(startPos, handlePos, endPos, t);
+                var b = PositionOnQuadCurve(startPos, arcPos, endPos, t);
                 length += Vector3.Distance(a, b);
                 a = b;
             }
@@ -281,13 +273,13 @@ namespace NorskaLib.Utilities
         /// Возвращает точку, на которую смотрит точка на квадратичной кривой
         /// </summary>
         /// <param name="startPos"> Начальная точка </param>
-        /// <param name="handlePos"> Опорная точка, задающая форму </param>
+        /// <param name="arcPos"> Опорная точка, задающая форму </param>
         /// <param name="endPos"> Конечная точка </param>
         /// <param name="t"> Параметр, определяющий долю от пути по кривой, 
         /// на которой находится точка; лежит в пределах от 0 до 1 </param>
-        public static Vector3 LookPositionOnQuad(Vector3 startPos, Vector3 handlePos, Vector3 endPos, float t)
+        public static Vector3 LookPositionOnQuad(Vector3 startPos, Vector3 arcPos, Vector3 endPos, float t)
         {
-            return handlePos + (endPos - handlePos) * t;
+            return arcPos + (endPos - arcPos) * t;
         }
 
         // By DylanW https://answers.unity.com/questions/556480/rotate-the-shortest-way.html

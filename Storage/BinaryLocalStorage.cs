@@ -108,7 +108,7 @@ namespace NorskaLib.Storage
             return true;
         }
 
-        public override void LoadShared(string name)
+        public override void LoadShared()
         {
             if (!IsInitialized)
             {
@@ -116,7 +116,7 @@ namespace NorskaLib.Storage
                 return;
             }
 
-            LoadModules(name, modulesShared);
+            LoadModules(SharedFilename, modulesShared);
         }
 
         public override void LoadSlot(string name)
@@ -132,7 +132,7 @@ namespace NorskaLib.Storage
             activeSlot = name;
         }
 
-        public override void SaveShared(string name)
+        public override void SaveShared()
         {
             if (!IsInitialized)
             {
@@ -140,7 +140,7 @@ namespace NorskaLib.Storage
                 return;
             }
 
-            Write(name, modulesShared);
+            Write(SharedFilename, modulesShared);
         }
 
         public override void SaveSlot(string name)

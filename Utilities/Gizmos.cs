@@ -21,6 +21,14 @@ namespace NorskaLib.Utilities
             Gizmos.DrawLine(position + Vector3.forward * halfsize.z, position + Vector3.back * halfsize.z);
         }
 
+        public static void DrawCrossPoint(Vector3 position, float size)
+        {
+            var halfsize = size * 0.5f;
+            Gizmos.DrawLine(position + Vector3.up * halfsize, position + Vector3.down * halfsize);
+            Gizmos.DrawLine(position + Vector3.left * halfsize, position + Vector3.right * halfsize);
+            Gizmos.DrawLine(position + Vector3.forward * halfsize, position + Vector3.back * halfsize);
+        }
+
         public static void DrawCrossPoint(Vector3 position)
         {
             DrawCrossPoint(position, Vector3.one);
@@ -47,14 +55,14 @@ namespace NorskaLib.Utilities
             DrawPolyline(vertices, true);
         }
 
-        public static void DrawQuadCurve(Vector3 start, Vector3 handle, Vector3 end, int subdivision = 2)
+        public static void DrawQuadCurve(Vector3 start, Vector3 arc, Vector3 end, int subdivision = 2)
         {
             subdivision = Mathf.Clamp(subdivision, 2, subdivision);
             var from = start;
             for (int i = 1; i <= subdivision; i++)
             {
-                var factor = i / subdivision;
-                var to = MathUtils.PositionOnQuadCurve(start, handle, from, factor);
+                var t = i / (float)subdivision;
+                var to = MathUtils.PositionOnQuadCurve(start, arc, end, t);
                 Gizmos.DrawLine(from, to);
                 from = to;
             }

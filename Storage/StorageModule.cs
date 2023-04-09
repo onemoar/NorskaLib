@@ -25,11 +25,11 @@ namespace NorskaLib.Storage
         public byte[] GetSerializedState()
         {
             var formatter = new BinaryFormatter();
-                using (var stream = new MemoryStream())
-                {
-                    formatter.Serialize(stream, State);
-                    return stream.ToArray();
-                }
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, State);
+                return stream.ToArray();
+            }
         }
 
         public void SetSerializedState(byte[] data)
@@ -41,6 +41,11 @@ namespace NorskaLib.Storage
             }
         }
 
+        /// <summary>
+        ///  Called when there is no module state found 
+        ///  (usually, when app is launched for the first time or
+        ///  saves has been deleted by the user).
+        /// </summary>
         public virtual void CreateDefaultState()
         {
             State = new T();
@@ -52,7 +57,7 @@ namespace NorskaLib.Storage
     /// that exist in a single instance (e. g. user account data or analytics).
     /// </summary>
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = false)]
-    public class SharedAttribute : System.Attribute
+    public class SharedStorageModuleAttribute : System.Attribute
     {
 
     }

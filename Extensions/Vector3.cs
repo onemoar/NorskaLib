@@ -37,6 +37,7 @@ namespace NorskaLib.Extensions
             return new Vector3(vector.x, vector.y, z);
         }
 
+        /// <returns> Short for 'new Vector2(this.vector.x, this.vector.z)'. </returns>
         public static Vector2 ToXZ(this Vector3 vector)
         {
             return new Vector2(vector.x, vector.z);

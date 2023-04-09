@@ -111,7 +111,7 @@ namespace NorskaLib.Utilities
 
             return -1;
         }
-        public static int Index<T>(T[] collection) where T : class, IRandomizable
+        public static int Index<T>(IEnumerable<T> collection) where T : IRandomizable
         {
             var W = 0f;
             foreach (var randomizable in collection)
@@ -120,41 +120,22 @@ namespace NorskaLib.Utilities
             var roll = Random.Range(0, W);
 
             var min = 0f;
-            for (int i = 0; i < collection.Length; i++)
-            {
-                var weight = collection[i].Weight;
-                var max = min + weight;
-                if (roll.IsBetween(min, max, false, true) && !weight.ApproximatelyZero())
-                    return i;
-
-                min = max;
-            }
-
-            return -1;
-        }
-        public static int Index<T>(IList<T> collection) where T : class, IRandomizable
-        {
-            var W = 0f;
+            var index = 0;
             foreach (var randomizable in collection)
-                W += randomizable.Weight;
-
-            var roll = Random.Range(0, W);
-
-            var min = 0f;
-            for (int i = 0; i < collection.Count; i++)
             {
-                var weight = collection[i].Weight;
+                var weight = randomizable.Weight;
                 var max = min + weight;
                 if (roll.IsBetween(min, max, false, true) && !weight.ApproximatelyZero())
-                    return i;
+                    return index;
 
                 min = max;
+                index++;
             }
 
             return -1;
         }
 
-        public static T Element<T>(IEnumerable<T> collection) where T : class, IRandomizable
+        public static T Element<T>(IEnumerable<T> collection) where T : IRandomizable
         {
             var W = 0f;
             foreach (var randomizable in collection)
@@ -168,12 +149,12 @@ namespace NorskaLib.Utilities
                 var weight = randomizable.Weight;
                 var max = min + weight;
                 if (roll.IsBetween(min, max, false, true) && !weight.ApproximatelyZero())
-                    return randomizable as T;
+                    return randomizable;
 
                 min = max;
             }
 
-            return null;
+            return default;
         }
     }
 }

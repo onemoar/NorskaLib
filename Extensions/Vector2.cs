@@ -24,6 +24,9 @@ namespace NorskaLib.Extensions
             return new Vector2(vector.x, y);
         }
 
+        /// <summary>
+        /// Short for 'new Vector3(this.vector.x, y, this.vector.y)'
+        /// </summary>
         public static Vector3 FromXZ(this Vector2 vector, float y = 0)
         {
             return new Vector3(vector.x, y, vector.y);

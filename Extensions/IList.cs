@@ -74,27 +74,10 @@ namespace NorskaLib.Extensions
             return list[index];
         }
 
-        /// <returns> FALSE - if next index is out of range. </returns>
-        //public static bool TryGetNext<T>(this IList<T> list, int index, bool loop, out T element)
-        //{
-        //    if (!index.IsBetween(0, list.Count))
-        //        throw new System.ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
-
-        //}
-
-        /// <returns> FALSE - if next index is out of range. </returns>
-        //public static bool TryGetPrevious<T>(this IList<T> list, int index, bool loop, out T element)
-        //{
-        //    if (!index.IsBetween(0, list.Count))
-        //        throw new System.ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
-
-
-        //}
-
         public static bool TryGetNextIndex<T>(this IList<T> list, int index, bool loop, out int nextIndex)
         {
             if (!index.IsBetween(0, list.Count))
-                throw new System.ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
+                throw new ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
 
 
             nextIndex = loop
@@ -109,7 +92,7 @@ namespace NorskaLib.Extensions
         public static bool TryGetPrevIndex<T>(this IList<T> list, int index, bool loop, out int prevIndex)
         {
             if (!index.IsBetween(0, list.Count))
-                throw new System.ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
+                throw new ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
 
             prevIndex = loop
                 ? index - 1 < 0
@@ -118,6 +101,34 @@ namespace NorskaLib.Extensions
                 : index - 1;
 
             return prevIndex < 0;
+        }
+
+        /// <returns> FALSE - If 'crnt' is the last element in the list and loop is set to false. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> - if 'crnt' is not present in the list.</exception>
+        public static bool TryGetNext<T>(this IList<T> list, T crnt, out T next, bool loop = false)
+        {
+            var crntIndex = list.IndexOf(crnt);
+            if (crntIndex == -1)
+                throw new ArgumentOutOfRangeException("Element is not present in the collection!");
+
+            var nextIndex = (crntIndex + 1) % list.Count;
+            var valid = loop || nextIndex != 0;
+            next = valid ? list[nextIndex] : default;
+            return valid;
+        }
+
+        /// <returns> FALSE - If 'crnt' is the first element in the list and loop is set to false. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> - if 'crnt' is not present in the list.</exception>
+        public static bool TryGetPrev<T>(this IList<T> list, T crnt, out T next, bool loop = false)
+        {
+            var crntIndex = list.IndexOf(crnt);
+            if (crntIndex == -1)
+                throw new ArgumentOutOfRangeException("Element is not present in the collection!");
+
+            var nextIndex = (crntIndex - 1) % list.Count;
+            var valid = loop || nextIndex != 0;
+            next = valid ? list[nextIndex] : default;
+            return valid;
         }
     }
 }
