@@ -91,18 +91,6 @@ namespace NorskaLib.Utilities
             return new Vector3(x, y, z);
         }
 
-        public static T Value<T>(IList<Meta<T>> metas)
-        {
-            var weights = metas.Select(m => m.weight).ToArray();
-            var index = Index(weights);
-            return metas[index].value;
-        }
-        public static T Value<T>(Meta<T>[] metas)
-        {
-            var weights = metas.Select(m => m.weight).ToArray();
-            var index = Index(weights);
-            return metas[index].value;
-        }
         public static int Index(float[] weigths)
         {
             float roll = Random.Range(0, weigths.Sum());
@@ -123,8 +111,50 @@ namespace NorskaLib.Utilities
 
             return -1;
         }
+        public static int Index<T>(T[] collection) where T : class, IRandomizable
+        {
+            var W = 0f;
+            foreach (var randomizable in collection)
+                W += randomizable.Weight;
 
-        public static T Element<T>(IEnumerable<IRandomizable> collection) where T : class, IRandomizable
+            var roll = Random.Range(0, W);
+
+            var min = 0f;
+            for (int i = 0; i < collection.Length; i++)
+            {
+                var weight = collection[i].Weight;
+                var max = min + weight;
+                if (roll.IsBetween(min, max, false, true) && !weight.ApproximatelyZero())
+                    return i;
+
+                min = max;
+            }
+
+            return -1;
+        }
+        public static int Index<T>(IList<T> collection) where T : class, IRandomizable
+        {
+            var W = 0f;
+            foreach (var randomizable in collection)
+                W += randomizable.Weight;
+
+            var roll = Random.Range(0, W);
+
+            var min = 0f;
+            for (int i = 0; i < collection.Count; i++)
+            {
+                var weight = collection[i].Weight;
+                var max = min + weight;
+                if (roll.IsBetween(min, max, false, true) && !weight.ApproximatelyZero())
+                    return i;
+
+                min = max;
+            }
+
+            return -1;
+        }
+
+        public static T Element<T>(IEnumerable<T> collection) where T : class, IRandomizable
         {
             var W = 0f;
             foreach (var randomizable in collection)
@@ -144,12 +174,6 @@ namespace NorskaLib.Utilities
             }
 
             return null;
-        }
-
-        public struct Meta<T>
-        {
-            public T value;
-            public float weight;
         }
     }
 }
