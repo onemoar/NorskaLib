@@ -74,11 +74,12 @@ namespace NorskaLib.Extensions
             return list[index];
         }
 
+        /// <returns> TRUE - if result is still inside collection range. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> Given 'index' was out of collection range. </exception>
         public static bool TryGetNextIndex<T>(this IList<T> list, int index, bool loop, out int nextIndex)
         {
             if (!index.IsBetween(0, list.Count))
                 throw new ArgumentOutOfRangeException($"Index '{index}' is out of range '{0}''{list.Count}'");
-
 
             nextIndex = loop
                 ? index + 1 >= list.Count
@@ -86,9 +87,11 @@ namespace NorskaLib.Extensions
                     : index + 1
                 : index + 1;
 
-            return nextIndex >= list.Count;
+            return nextIndex < list.Count;
         }
 
+        /// <returns> TRUE - if result is still inside collection range. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> Given 'index' was out of collection range. </exception>
         public static bool TryGetPrevIndex<T>(this IList<T> list, int index, bool loop, out int prevIndex)
         {
             if (!index.IsBetween(0, list.Count))
@@ -96,11 +99,11 @@ namespace NorskaLib.Extensions
 
             prevIndex = loop
                 ? index - 1 < 0
-                    ? list.Count - -1
+                    ? list.Count - 1
                     : index - 1
                 : index - 1;
 
-            return prevIndex < 0;
+            return prevIndex >= 0;
         }
 
         /// <returns> FALSE - If 'crnt' is the last element in the list and loop is set to false. </returns>

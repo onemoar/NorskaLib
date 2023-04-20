@@ -207,6 +207,15 @@ namespace NorskaLib.Utilities
             return PositionOnRectangle(rect.center, rect.size, angle);
         }
 
+        public static Vector3 PositionOnCircle3D(float degrees, float radius)
+        {
+            var p = degrees * Mathf.PI / 180;
+
+            var z = radius * Mathf.Cos(p);
+            var x = radius * Mathf.Sin(p);
+
+            return new Vector3(x, 0, z);
+        }
         public static Vector3 PositionOnCircle3D(Vector3 origin, float degrees, float radius)
         {
             var p = degrees * Mathf.PI / 180;
@@ -215,6 +224,15 @@ namespace NorskaLib.Utilities
             var x = radius * Mathf.Sin(p);
 
             return origin + new Vector3(x, 0, z);
+        }
+        public static Vector2 PositionOnCircle2D(float degrees, float radius)
+        {
+            var p = degrees * Mathf.PI / 180;
+
+            var y = radius * Mathf.Cos(p);
+            var x = radius * Mathf.Sin(p);
+
+            return new Vector2(x, y);
         }
         public static Vector2 PositionOnCircle2D(Vector2 origin, float degrees, float radius)
         {
