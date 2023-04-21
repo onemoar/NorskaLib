@@ -38,36 +38,59 @@ namespace NorskaLib.Utilities
         }
 
         // TO DO: Optimize to avoid List<> allocation
-        public static Vector3[] GetSectorVertices(Vector3 origin, float facing, float span, float radiusMin, float radiusMax, int subdivision = 2)
+        public static Vector3[] GetSectorVertices(Vector3 origin, float facing, float span, float radiusInner, float radiusOuter, int subdivision = 2)
         {
             subdivision = subdivision < 2 ? 2 : subdivision;
-            var arcSubposDelta = 1.0f / subdivision;
+            var angularDelta = 1.0f / subdivision;
             var angularOrigin = facing - (span * 0.5f);
             var angularLimit = facing + (span * 0.5f);
 
-            var vertices = new List<Vector3>();
-            // Top-Left
-            vertices.Add(MathUtils.PositionOnCircle3D(origin, angularOrigin, radiusMax));
-            for (int i = 1; i < subdivision; i++)
+            var vertices = new List<Vector3>(subdivision * 2 + 2);
+            for (int i = 0; i <= subdivision; i++)
             {
-                var angle = Mathf.Lerp(angularOrigin, angularLimit, arcSubposDelta * i);
-                vertices.Add(MathUtils.PositionOnCircle3D(origin, angle, radiusMax));
+                var angle = Mathf.Lerp(angularOrigin, angularLimit, angularDelta * i);
+                vertices.Add(MathUtils.PositionOnCircle3D(origin, angle, radiusOuter));
             }
-            // Top-Right
-            vertices.Add(MathUtils.PositionOnCircle3D(origin, angularLimit, radiusMax));
-
-            // Bottom-Right
-            vertices.Add(MathUtils.PositionOnCircle3D(origin, angularLimit, radiusMin));
-            for (int i = subdivision - 1; i > 0; i--)
+            for (int i = subdivision; i >= 0; i--)
             {
-                var angle = Mathf.Lerp(angularOrigin, angularLimit, arcSubposDelta * i);
-                vertices.Add(MathUtils.PositionOnCircle3D(origin, angle, radiusMin));
+                var angle = Mathf.Lerp(angularOrigin, angularLimit, angularDelta * i);
+                vertices.Add(MathUtils.PositionOnCircle3D(origin, angle, radiusInner));
             }
-
-            //Bottom-Left
-            vertices.Add(MathUtils.PositionOnCircle3D(origin, angularOrigin, radiusMin));
 
             return vertices.ToArray();
-        }   
+        }
+
+        // TO DO: Optimize to avoid List<> allocation
+        //public static Vector3[] GetSectorVertices(Vector3 origin, float facing, float span, float radiusMin, float radiusMax, int subdivision = 2)
+        //{
+        //    subdivision = subdivision < 2 ? 2 : subdivision;
+        //    var arcSubposDelta = 1.0f / subdivision;
+        //    var angularOrigin = facing - (span * 0.5f);
+        //    var angularLimit = facing + (span * 0.5f);
+
+        //    var vertices = new List<Vector3>();
+        //    // Top-Left
+        //    vertices.Add(MathUtils.PositionOnCircle3D(origin, angularOrigin, radiusMax));
+        //    for (int i = 1; i < subdivision; i++)
+        //    {
+        //        var angle = Mathf.Lerp(angularOrigin, angularLimit, arcSubposDelta * i);
+        //        vertices.Add(MathUtils.PositionOnCircle3D(origin, angle, radiusMax));
+        //    }
+        //    // Top-Right
+        //    vertices.Add(MathUtils.PositionOnCircle3D(origin, angularLimit, radiusMax));
+
+        //    // Bottom-Right
+        //    vertices.Add(MathUtils.PositionOnCircle3D(origin, angularLimit, radiusMin));
+        //    for (int i = subdivision - 1; i > 0; i--)
+        //    {
+        //        var angle = Mathf.Lerp(angularOrigin, angularLimit, arcSubposDelta * i);
+        //        vertices.Add(MathUtils.PositionOnCircle3D(origin, angle, radiusMin));
+        //    }
+
+        //    //Bottom-Left
+        //    vertices.Add(MathUtils.PositionOnCircle3D(origin, angularOrigin, radiusMin));
+
+        //    return vertices.ToArray();
+        //}   
     }
 }

@@ -13,6 +13,16 @@ namespace NorskaLib.Utilities
             Gizmos.DrawLine(from, to);
         }
 
+        /// <param name="direction"> Expected to be normalized. </param>
+        /// <param name="scale"> Length of the ray. </param>
+        public static void DrawRay(Vector3 origin, Vector3 direction, float scale = 1)
+        {
+            var from = origin;
+            var to = origin + direction * scale;
+
+            Gizmos.DrawLine(from, to);
+        }
+
         public static void DrawCrossPoint(Vector3 position, Vector3 size)
         {
             var halfsize = size * 0.5f;
@@ -52,6 +62,11 @@ namespace NorskaLib.Utilities
         public static void DrawSector(Vector3 origin, float facing, float span, float radius, int subdivision = 2)
         {
             var vertices = MeshUtils.GetSectorVertices(origin, facing, span, radius, subdivision);
+            DrawPolyline(vertices, true);
+        }
+        public static void DrawSector(Vector3 origin, float facing, float span, float radiusInner, float radiusOuter, int subdivision = 2)
+        {
+            var vertices = MeshUtils.GetSectorVertices(origin, facing, span, radiusInner, radiusOuter, subdivision);
             DrawPolyline(vertices, true);
         }
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.Windows;
 
 namespace NorskaLib.Utilities
 {
@@ -17,6 +18,11 @@ namespace NorskaLib.Utilities
             return Mathf.Min(Mathf.Min(a, b), c);
         }
 
+        public static double Min(double a, double b)
+        {
+            return a <= b ? a : b;
+        }
+
         public static float Max(float a, float b, float c)
         {
             return Mathf.Max(Mathf.Max(a, b), c);
@@ -24,6 +30,39 @@ namespace NorskaLib.Utilities
         public static int Max(int a, int b, int c)
         {
             return Mathf.Max(Mathf.Max(a, b), c);
+        }
+
+        public static double Max(double a, double b)
+        {
+            return a >= b ? a : b;
+        }
+
+        public static double InverseLerp(double a, double b, double value)
+        {
+            return Clamp01((value - a) / (b - a));
+        }
+
+        public static double InverseLerpUnclamped(double a, double b, double value)
+        {
+            return (value - a) / (b - a);
+        }
+
+        public static double Clamp01(double value)
+        {
+            return value >= 1
+                ? 1
+                : value <= 0
+                    ? 0
+                    : value;
+        }
+
+        public static double Clamp(double value, double min, double max)
+        {
+            return value >= max
+                ? max
+                : value <= min
+                    ? min
+                    : value;
         }
 
         public static List<int> GetRangeList(int min, int max)
@@ -80,6 +119,13 @@ namespace NorskaLib.Utilities
                 ? 360 + signedAngle
                 : signedAngle;
         }
+
+
+        /// <returns> Same angle in -180...+180 degrees range.</returns>
+        //public static float ToSignedDegrees(float degrees)
+        //{
+        //    
+        //}
 
         public static float CylindricSpiralLength(float R, float H)
         {
